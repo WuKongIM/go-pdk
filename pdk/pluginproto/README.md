@@ -1,0 +1,1 @@
+protoc ./pdk/pluginproto/plugin.proto --go_out=./pdk/pluginproto
