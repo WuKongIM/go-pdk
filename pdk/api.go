@@ -1,8 +1,6 @@
 package pdk
 
 import (
-	"fmt"
-
 	"github.com/WuKongIM/GoPDK/pdk/pluginproto"
 	"github.com/WuKongIM/wkrpc/client"
 	"github.com/WuKongIM/wkrpc/proto"
@@ -10,8 +8,14 @@ import (
 )
 
 func (s *Server) routes() {
+	s.rpcClient.Route("/plugin/send", s.send)
+	s.rpcClient.Route("/plugin/persist_after", s.persistAfter)
+	s.rpcClient.Route("/plugin/route", s.route)
+}
+
+// 收到消息
+func (s *Server) onMessage() {
 	s.rpcClient.OnMessage(func(msg *proto.Message) {
-		fmt.Println("msg---->", msg.MsgType, len(msg.Content))
 		switch msg.MsgType {
 		case uint32(PluginMethodTypePersistAfter):
 			messages := &pluginproto.MessageBatch{}
@@ -23,7 +27,6 @@ func (s *Server) routes() {
 			s.handlePersistAfter(messages)
 		}
 	})
-	s.rpcClient.Route("/plugin/send", s.send)
 }
 
 func (s *Server) send(c *client.Context) {
@@ -49,11 +52,50 @@ func (s *Server) send(c *client.Context) {
 }
 
 func (s *Server) persistAfter(c *client.Context) {
+	messages := &pluginproto.MessageBatch{}
+	err := messages.Unmarshal(c.Body())
+	if err != nil {
+		s.Error("unmarshal message batch error", zap.Error(err))
+		c.WriteErr(err)
+		return
+	}
 
+	s.handlePersistAfter(messages)
+	c.WriteOk()
 }
 
 func (s *Server) handlePersistAfter(messages *pluginproto.MessageBatch) {
 	s.plugin.persistAfter(&Context{
 		Packet: messages,
 	})
+}
+
+func (s *Server) route(c *client.Context) {
+
+	req := &pluginproto.HttpRequest{}
+	err := req.Unmarshal(c.Body())
+	if err != nil {
+		s.Error("unmarshal http request error", zap.Error(err))
+		c.WriteErr(err)
+		return
+	}
+
+	ctx := &HttpContext{
+		Request: req,
+		Response: &pluginproto.HttpResponse{
+			Headers: map[string]string{},
+		},
+	}
+
+	// route
+	s.plugin.route(ctx)
+
+	// response
+	data, err := ctx.Response.Marshal()
+	if err != nil {
+		s.Error("marshal http response error", zap.Error(err))
+		c.WriteErr(err)
+		return
+	}
+	c.Write(data)
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/WuKongIM/GoPDK/pdk"
 	"github.com/WuKongIM/GoPDK/pdk/pluginproto"
@@ -26,6 +27,8 @@ func New() interface{} {
 }
 
 func (s Hello) Route(c *pdk.Route) {
+	// http://127.0.0.1:5001/plugins/wk.plugin.hello/hello
+	c.GET("/hello", s.sayHello)
 }
 
 // 消息发送前（适合敏感词过滤之类的插件）(同步调用)
@@ -37,10 +40,18 @@ func (s Hello) Send(c *pdk.Context) {
 
 // 消息持久化后（适合消息搜索类插件）（默认异步调用）
 func (s Hello) PersistAfter(c *pdk.Context) {
-	fmt.Println("PersistAfter--->", c.Packet)
+	fmt.Println("PersistAfter:", c.Packet)
 }
 
 // 回复消息（适合AI类插件）（默认异步调用）
 func (s Hello) Reply(c *pdk.Context) {
 
+}
+
+func (s Hello) sayHello(c *pdk.HttpContext) {
+	name := c.GetQuery("name")
+
+	c.JSON(http.StatusOK, map[string]interface{}{
+		"say": fmt.Sprintf("hello %s", name),
+	})
 }

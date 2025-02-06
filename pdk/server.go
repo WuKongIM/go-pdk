@@ -73,6 +73,7 @@ func newServer(rpcClient *client.Client, plugin *plugin, opts *Options) *Server 
 func (s *Server) run() error {
 
 	s.routes()
+	s.onMessage()
 
 	s.plugin.start()
 

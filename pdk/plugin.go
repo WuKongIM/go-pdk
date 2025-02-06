@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/WuKongIM/GoPDK/pdk/pluginproto"
+	"github.com/WuKongIM/wklog"
 	"github.com/WuKongIM/wkrpc/client"
 	"github.com/WuKongIM/wkrpc/proto"
 )
@@ -19,6 +20,7 @@ const (
 	PluginSend         PluginMethod = "Send"
 	PluginPersistAfter PluginMethod = "PersistAfter"
 	PluginReply        PluginMethod = "Reply"
+	PluginRoute        PluginMethod = "Route"
 )
 
 func (p PluginMethod) String() string {
@@ -31,6 +33,7 @@ const (
 	PluginMethodTypeSend         PluginMethodType = 1
 	PluginMethodTypePersistAfter PluginMethodType = 2
 	PluginMethodTypeReply        PluginMethodType = 3
+	PluginMethodTypeRoute        PluginMethodType = 4
 )
 
 func (p PluginMethod) Type() PluginMethodType {
@@ -41,17 +44,22 @@ func (p PluginMethod) Type() PluginMethodType {
 		return PluginMethodTypePersistAfter
 	case PluginReply:
 		return PluginMethodTypeReply
+	case PluginRoute:
+		return PluginMethodTypeRoute
 	}
 	return 0
 }
 
 type plugin struct {
-	handlerType reflect.Type
-	constructor func() interface{}
-	opts        *Options
-	rpcClient   *client.Client
-	methods     []string
-	handlers    map[string]func(*Context)
+	handlerType  reflect.Type
+	constructor  func() interface{}
+	opts         *Options
+	rpcClient    *client.Client
+	methods      []string
+	handlers     map[string]func(*Context)
+	routeHandler func(*Route)
+	r            *Route // http 路由
+	wklog.Log
 }
 
 func newPlugin(opts *Options, constructor func() interface{}, rpcClient *client.Client) *plugin {
@@ -59,13 +67,24 @@ func newPlugin(opts *Options, constructor func() interface{}, rpcClient *client.
 	instance := constructor()
 	t := reflect.TypeOf(constructor())
 
+	routeHandler := getRouteHandler(instance)
+
+	var r *Route
+	if routeHandler != nil {
+		r = newRoute()
+		routeHandler(r)
+	}
+
 	return &plugin{
-		handlerType: t,
-		constructor: constructor,
-		opts:        opts,
-		rpcClient:   rpcClient,
-		methods:     getHandlerNames(t),
-		handlers:    getHandlers(instance),
+		handlerType:  t,
+		constructor:  constructor,
+		opts:         opts,
+		rpcClient:    rpcClient,
+		methods:      getHandlerNames(t),
+		handlers:     getHandlers(instance),
+		routeHandler: routeHandler,
+		r:            r,
+		Log:          wklog.NewWKLog(fmt.Sprintf("Plugin[%s]", opts.No)),
 	}
 }
 
@@ -100,8 +119,15 @@ func (p *plugin) persistAfter(ctx *Context) {
 	}
 }
 
+func (p *plugin) route(ctx *HttpContext) {
+	if p.r == nil {
+		p.Warn("route handler not found")
+		return
+	}
+	p.r.handle(ctx)
+}
+
 func (p *plugin) requestStart() error {
-	fmt.Println("requestStart--->")
 	pluginInfo := p.getPluginInfo()
 	data, err := pluginInfo.Marshal()
 	if err != nil {
@@ -159,6 +185,7 @@ var methodNames = [...]string{
 	PluginSend.String(),
 	PluginPersistAfter.String(),
 	PluginReply.String(),
+	PluginRoute.String(),
 }
 
 func getHandlerNames(t reflect.Type) []string {
@@ -187,6 +214,13 @@ func getHandlers(instance interface{}) map[string]func(*Context) {
 	return handlers
 }
 
+func getRouteHandler(instance interface{}) func(*Route) {
+	if h, ok := instance.(route); ok {
+		return h.Route
+	}
+	return nil
+}
+
 type (
 	send interface {
 		Send(*Context)
@@ -197,5 +231,9 @@ type (
 
 	reply interface {
 		Reply(*Context)
+	}
+
+	route interface {
+		Route(*Route)
 	}
 )
