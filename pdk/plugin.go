@@ -51,13 +51,13 @@ func (p PluginMethod) Type() PluginMethodType {
 }
 
 type plugin struct {
-	handlerType  reflect.Type
 	constructor  func() interface{}
 	opts         *Options
 	rpcClient    *client.Client
 	methods      []string
 	handlers     map[string]func(*Context)
 	routeHandler func(*Route)
+	stopHandler  func()
 	r            *Route // http 路由
 	wklog.Log
 }
@@ -68,21 +68,22 @@ func newPlugin(opts *Options, constructor func() interface{}, rpcClient *client.
 	t := reflect.TypeOf(instance)
 
 	routeHandler := getRouteHandler(instance)
-
 	var r *Route
 	if routeHandler != nil {
 		r = newRoute()
 		routeHandler(r)
 	}
 
+	stopHandler := getStopHandler(instance)
+
 	return &plugin{
-		handlerType:  t,
 		constructor:  constructor,
 		opts:         opts,
 		rpcClient:    rpcClient,
 		methods:      getHandlerNames(t),
 		handlers:     getHandlers(instance),
 		routeHandler: routeHandler,
+		stopHandler:  stopHandler,
 		r:            r,
 		Log:          wklog.NewWKLog(fmt.Sprintf("Plugin[%s]", opts.No)),
 	}
@@ -102,7 +103,9 @@ func (p *plugin) start() {
 }
 
 func (p *plugin) stop() {
-
+	if p.stopHandler != nil {
+		p.stopHandler()
+	}
 }
 
 func (p *plugin) send(ctx *Context) {
@@ -196,6 +199,7 @@ func getHandlerNames(t reflect.Type) []string {
 			handlers = append(handlers, name)
 		}
 	}
+	fmt.Println("handlers-->", handlers)
 	return handlers
 }
 
@@ -221,6 +225,13 @@ func getRouteHandler(instance interface{}) func(*Route) {
 	return nil
 }
 
+func getStopHandler(instance interface{}) func() {
+	if h, ok := instance.(stop); ok {
+		return h.Stop
+	}
+	return nil
+}
+
 type (
 	send interface {
 		Send(*Context)
@@ -235,5 +246,9 @@ type (
 
 	route interface {
 		Route(*Route)
+	}
+
+	stop interface {
+		Stop()
 	}
 )

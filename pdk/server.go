@@ -37,13 +37,16 @@ func RunServer(constructor func() interface{}, no string, opt ...Option) error {
 
 	// 创建服务
 	s := newServer(rpcClient, plugin, opts)
+	// 设置全局对象
+	S = s
+	// 运行服务
 	err = s.run()
 	if err != nil {
 		return err
 	}
+	// 停止
 	rpcClient.Stop()
-
-	S = s
+	s.stop()
 
 	return nil
 }
@@ -109,8 +112,6 @@ func (s *Server) run() error {
 	signal.Notify(sigChan, syscall.SIGTERM, syscall.SIGINT)
 	// 阻塞直到接收到信号
 	<-sigChan
-
-	s.stop()
 
 	return nil
 }

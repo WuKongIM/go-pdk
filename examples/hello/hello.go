@@ -48,6 +48,10 @@ func (s Hello) Reply(c *pdk.Context) {
 
 }
 
+func (s Hello) Stop() {
+	fmt.Println("plugin stop...")
+}
+
 func (s Hello) sayHello(c *pdk.HttpContext) {
 	name := c.GetQuery("name")
 
