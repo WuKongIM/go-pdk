@@ -2,6 +2,7 @@ package pdk
 
 import (
 	"encoding/json"
+	"net/http"
 
 	"github.com/WuKongIM/go-pdk/pdk/pluginproto"
 )
@@ -42,5 +43,15 @@ func (h *HttpContext) JSON(code int, v interface{}) {
 	data, _ := json.Marshal(v)
 	h.Response.Body = data
 	h.Response.Status = int32(code)
+	h.Response.Headers["Content-Type"] = "application/json"
+}
+
+func (h *HttpContext) ResponseError(err error) {
+	data, _ := json.Marshal(map[string]interface{}{
+		"msg":    err.Error(),
+		"status": http.StatusBadGateway,
+	})
+	h.Response.Status = http.StatusBadGateway
+	h.Response.Body = data
 	h.Response.Headers["Content-Type"] = "application/json"
 }
