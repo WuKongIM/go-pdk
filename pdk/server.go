@@ -12,6 +12,8 @@ import (
 	"github.com/WuKongIM/wkrpc/client"
 )
 
+var S *Server
+
 func RunServer(constructor func() interface{}, no string, opt ...Option) error {
 	if constructor == nil {
 		return fmt.Errorf("constructor is nil")
@@ -40,6 +42,9 @@ func RunServer(constructor func() interface{}, no string, opt ...Option) error {
 		return err
 	}
 	rpcClient.Stop()
+
+	S = s
+
 	return nil
 }
 
@@ -53,10 +58,9 @@ func newRpcClient(pluginNo string) *client.Client {
 }
 
 type Server struct {
-	rpcClient  *client.Client
-	pluginInfo *pluginproto.PluginInfo
-	plugin     *plugin
-	opts       *Options
+	rpcClient *client.Client
+	plugin    *plugin
+	opts      *Options
 	wklog.Log
 }
 
@@ -68,6 +72,28 @@ func newServer(rpcClient *client.Client, plugin *plugin, opts *Options) *Server 
 		plugin:    plugin,
 		Log:       wklog.NewWKLog(fmt.Sprintf("Server[%s]", opts.No)),
 	}
+}
+
+// 向服务端发送请求
+func (s *Server) Request(requestPath string, data []byte) ([]byte, error) {
+	return s.plugin.request(requestPath, data)
+}
+
+func (s *Server) GetChannelMessages(req *pluginproto.ChannelMessageBatchReq) (*pluginproto.ChannelMessageResp, error) {
+	data, err := req.Marshal()
+	if err != nil {
+		return nil, err
+	}
+	respData, err := s.Request("/channel/messages", data)
+	if err != nil {
+		return nil, err
+	}
+	resp := &pluginproto.ChannelMessageResp{}
+	err = resp.Unmarshal(respData)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
 }
 
 func (s *Server) run() error {
