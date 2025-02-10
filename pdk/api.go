@@ -1,7 +1,7 @@
 package pdk
 
 import (
-	"github.com/WuKongIM/GoPDK/pdk/pluginproto"
+	"github.com/WuKongIM/go-pdk/pdk/pluginproto"
 	"github.com/WuKongIM/wkrpc/client"
 	"github.com/WuKongIM/wkrpc/proto"
 	"go.uber.org/zap"

@@ -3,7 +3,7 @@ package pdk
 import (
 	"encoding/json"
 
-	"github.com/WuKongIM/GoPDK/pdk/pluginproto"
+	"github.com/WuKongIM/go-pdk/pdk/pluginproto"
 )
 
 type Context struct {

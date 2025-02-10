@@ -1,4 +1,4 @@
-module github.com/WuKongIM/GoPDK
+module github.com/WuKongIM/go-pdk
 
 go 1.23.4
 

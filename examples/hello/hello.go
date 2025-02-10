@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/WuKongIM/GoPDK/pdk"
-	"github.com/WuKongIM/GoPDK/pdk/pluginproto"
+	"github.com/WuKongIM/go-pdk/pdk"
+	"github.com/WuKongIM/go-pdk/pdk/pluginproto"
 )
 
 var Version = "0.0.1"   // 插件版本

@@ -7,7 +7,7 @@ import (
 	"path"
 	"syscall"
 
-	"github.com/WuKongIM/GoPDK/pdk/pluginproto"
+	"github.com/WuKongIM/go-pdk/pdk/pluginproto"
 	"github.com/WuKongIM/wklog"
 	"github.com/WuKongIM/wkrpc/client"
 )
