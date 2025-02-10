@@ -82,7 +82,7 @@ func (s *Server) Request(requestPath string, data []byte) ([]byte, error) {
 	return s.plugin.request(requestPath, data)
 }
 
-func (s *Server) GetChannelMessages(req *pluginproto.ChannelMessageBatchReq) (*pluginproto.ChannelMessageResp, error) {
+func (s *Server) GetChannelMessages(req *pluginproto.ChannelMessageBatchReq) (*pluginproto.ChannelMessageBatchResp, error) {
 	data, err := req.Marshal()
 	if err != nil {
 		return nil, err
@@ -91,7 +91,7 @@ func (s *Server) GetChannelMessages(req *pluginproto.ChannelMessageBatchReq) (*p
 	if err != nil {
 		return nil, err
 	}
-	resp := &pluginproto.ChannelMessageResp{}
+	resp := &pluginproto.ChannelMessageBatchResp{}
 	err = resp.Unmarshal(respData)
 	if err != nil {
 		return nil, err
