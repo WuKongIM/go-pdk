@@ -99,7 +99,7 @@ message ChannelMessageReq {
     // 频道类型
     uint32 channelType = 2;
     // 消息开始序号
-    uint32 startMessageSeq = 3;
+    uint64 startMessageSeq = 3;
     // 查询数量，默认100
     uint32 limit = 4;
 }
@@ -115,7 +115,7 @@ message ChannelMessageResp {
     // 频道类型
     uint32 channelType = 2;
     // 消息开始序号
-    uint32 startMessageSeq = 3;
+    uint64 startMessageSeq = 3;
     // 查询数量，默认100
     uint32 limit = 4;
     // 消息列表
