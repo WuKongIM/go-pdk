@@ -65,7 +65,7 @@ type plugin struct {
 func newPlugin(opts *Options, constructor func() interface{}, rpcClient *client.Client) *plugin {
 
 	instance := constructor()
-	t := reflect.TypeOf(constructor())
+	t := reflect.TypeOf(instance)
 
 	routeHandler := getRouteHandler(instance)
 
