@@ -6,6 +6,7 @@ import (
 	"os"
 	"path"
 	"reflect"
+	"sync"
 	"time"
 
 	"github.com/WuKongIM/go-pdk/pdk/pluginproto"
@@ -58,9 +59,12 @@ type plugin struct {
 	handlers     map[string]func(*Context)
 	routeHandler func(*Route)
 	stopHandler  func()
+	setupHandler func()
 	sandbox      string // 沙箱目录
 	r            *Route // http 路由
 	wklog.Log
+
+	setupOnce sync.Once
 }
 
 func newPlugin(opts *Options, constructor func() interface{}, rpcClient *client.Client) *plugin {
@@ -68,6 +72,7 @@ func newPlugin(opts *Options, constructor func() interface{}, rpcClient *client.
 	instance := constructor()
 	t := reflect.TypeOf(instance)
 
+	// 获取路由处理函数
 	routeHandler := getRouteHandler(instance)
 	var r *Route
 	if routeHandler != nil {
@@ -75,7 +80,11 @@ func newPlugin(opts *Options, constructor func() interface{}, rpcClient *client.
 		routeHandler(r)
 	}
 
+	// 获取停止处理函数
 	stopHandler := getStopHandler(instance)
+
+	// setup handler
+	setupHandler := getSetupHandler(instance)
 
 	return &plugin{
 		constructor:  constructor,
@@ -85,6 +94,7 @@ func newPlugin(opts *Options, constructor func() interface{}, rpcClient *client.
 		handlers:     getHandlers(instance),
 		routeHandler: routeHandler,
 		stopHandler:  stopHandler,
+		setupHandler: setupHandler,
 		r:            r,
 		Log:          wklog.NewWKLog(fmt.Sprintf("Plugin[%s]", opts.No)),
 	}
@@ -93,11 +103,23 @@ func newPlugin(opts *Options, constructor func() interface{}, rpcClient *client.
 func (p *plugin) start() {
 	if p.rpcClient.IsAuthed() {
 		_ = p.requestStart()
+
+		p.setupOnce.Do(func() {
+			if p.setupHandler != nil {
+				p.setupHandler()
+			}
+		})
 	}
 
 	p.rpcClient.OnConnectChanged(func(status client.ConnStatus) {
 		if status == client.Authed {
 			_ = p.requestStart()
+
+			p.setupOnce.Do(func() {
+				if p.setupHandler != nil {
+					p.setupHandler()
+				}
+			})
 		}
 	})
 
@@ -242,6 +264,13 @@ func getStopHandler(instance interface{}) func() {
 	return nil
 }
 
+func getSetupHandler(instance interface{}) func() {
+	if h, ok := instance.(setup); ok {
+		return h.Setup
+	}
+	return nil
+}
+
 type (
 	send interface {
 		Send(*Context)
@@ -260,5 +289,9 @@ type (
 
 	stop interface {
 		Stop()
+	}
+
+	setup interface {
+		Setup()
 	}
 )
