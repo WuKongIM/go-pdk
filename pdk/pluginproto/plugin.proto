@@ -27,6 +27,16 @@ message PluginInfo {
     repeated string getPaths = 9;
 }
 
+// 插件启动返回
+message StartupResp {
+    // 是否成功
+    bool success = 1;
+    // 错误信息
+    string errMsg = 2;
+    // 沙盒路径
+    string sandboxDir = 3;
+}
+
 message SendPacket {
     // 发送者
     string from = 1;

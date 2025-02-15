@@ -161,6 +161,11 @@ func (s *Server) ClusterChannelBelongNode(req *pluginproto.ClusterChannelBelongN
 	return resp, nil
 }
 
+// SandboxDir 插件沙箱目录 （插件数据可以保存到此目录下）
+func (s *Server) SandboxDir() string {
+	return s.plugin.sandbox
+}
+
 func (s *Server) run() error {
 
 	s.routes()

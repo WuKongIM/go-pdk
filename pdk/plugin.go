@@ -58,6 +58,7 @@ type plugin struct {
 	handlers     map[string]func(*Context)
 	routeHandler func(*Route)
 	stopHandler  func()
+	sandbox      string // 沙箱目录
 	r            *Route // http 路由
 	wklog.Log
 }
@@ -136,10 +137,20 @@ func (p *plugin) requestStart() error {
 	if err != nil {
 		panic(err)
 	}
-	_, err = p.request("/plugin/start", data)
+	resultData, err := p.request("/plugin/start", data)
 	if err != nil {
 		return err
 	}
+
+	resp := &pluginproto.StartupResp{}
+	err = resp.Unmarshal(resultData)
+	if err != nil {
+		return err
+	}
+	if !resp.Success {
+		return fmt.Errorf("startup failed: %s", resp.ErrMsg)
+	}
+	p.sandbox = resp.SandboxDir
 	return nil
 }
 
@@ -199,7 +210,6 @@ func getHandlerNames(t reflect.Type) []string {
 			handlers = append(handlers, name)
 		}
 	}
-	fmt.Println("handlers-->", handlers)
 	return handlers
 }
 
