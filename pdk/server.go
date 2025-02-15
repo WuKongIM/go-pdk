@@ -77,11 +77,12 @@ func newServer(rpcClient *client.Client, plugin *plugin, opts *Options) *Server 
 	}
 }
 
-// 向服务端发送请求
+// Request 向服务端发送请求
 func (s *Server) Request(requestPath string, data []byte) ([]byte, error) {
 	return s.plugin.request(requestPath, data)
 }
 
+// GetChannelMessages 获取频道消息
 func (s *Server) GetChannelMessages(req *pluginproto.ChannelMessageBatchReq) (*pluginproto.ChannelMessageBatchResp, error) {
 	data, err := req.Marshal()
 	if err != nil {
@@ -92,6 +93,67 @@ func (s *Server) GetChannelMessages(req *pluginproto.ChannelMessageBatchReq) (*p
 		return nil, err
 	}
 	resp := &pluginproto.ChannelMessageBatchResp{}
+	err = resp.Unmarshal(respData)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+// ForwardHttp 转发插件http请求
+func (s *Server) ForwardHttp(req *pluginproto.ForwardHttpReq) (*pluginproto.HttpResponse, error) {
+	data, err := req.Marshal()
+	if err != nil {
+		return nil, err
+	}
+
+	if req.PluginNo == "" {
+		req.PluginNo = s.opts.No
+	}
+	respData, err := s.Request("/plugin/httpForward", data)
+	if err != nil {
+		return nil, err
+	}
+	resp := &pluginproto.HttpResponse{}
+	err = resp.Unmarshal(respData)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+// ConversationChannels 查询用户最近会话的频道
+func (s *Server) ConversationChannels(uid string) (*pluginproto.ConversationChannelResp, error) {
+	req := &pluginproto.ConversationChannelReq{
+		Uid: uid,
+	}
+	data, err := req.Marshal()
+	if err != nil {
+		return nil, err
+	}
+	respData, err := s.Request("/conversation/channels", data)
+	if err != nil {
+		return nil, err
+	}
+	resp := &pluginproto.ConversationChannelResp{}
+	err = resp.Unmarshal(respData)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+// ClusterChannelBelongNode 获取频道所属节点
+func (s *Server) ClusterChannelBelongNode(req *pluginproto.ClusterChannelBelongNodeReq) (*pluginproto.ClusterChannelBelongNodeResp, error) {
+	data, err := req.Marshal()
+	if err != nil {
+		return nil, err
+	}
+	respData, err := s.Request("/cluster/channels/belongNode", data)
+	if err != nil {
+		return nil, err
+	}
+	resp := &pluginproto.ClusterChannelBelongNodeResp{}
 	err = resp.Unmarshal(respData)
 	if err != nil {
 		return nil, err
