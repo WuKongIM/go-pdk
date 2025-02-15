@@ -105,6 +105,12 @@ func (p *plugin) start() {
 		_ = p.requestStart()
 
 		p.setupOnce.Do(func() {
+
+			// 初始化日志目录
+			opts := wklog.NewOptions()
+			opts.LogDir = path.Join(p.sandbox, "logs")
+			wklog.Configure(opts)
+
 			if p.setupHandler != nil {
 				p.setupHandler()
 			}

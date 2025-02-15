@@ -26,6 +26,12 @@ func New() interface{} {
 	return &Hello{}
 }
 
+// 插件初始化
+func (s Hello) Setup() {
+	fmt.Println("plugin setup...")
+}
+
+// 注册http路由
 func (s Hello) Route(c *pdk.Route) {
 	// http://127.0.0.1:5001/plugins/wk.plugin.hello/hello
 	c.GET("/hello", s.sayHello)
@@ -48,6 +54,7 @@ func (s Hello) Reply(c *pdk.Context) {
 
 }
 
+// 插件停止
 func (s Hello) Stop() {
 	fmt.Println("plugin stop...")
 }
