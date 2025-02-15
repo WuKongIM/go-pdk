@@ -105,12 +105,7 @@ func (p *plugin) start() {
 		_ = p.requestStart()
 
 		p.setupOnce.Do(func() {
-
-			// 初始化日志目录
-			opts := wklog.NewOptions()
-			opts.LogDir = path.Join(p.sandbox, "logs")
-			wklog.Configure(opts)
-
+			p.initLogger()
 			if p.setupHandler != nil {
 				p.setupHandler()
 			}
@@ -120,8 +115,8 @@ func (p *plugin) start() {
 	p.rpcClient.OnConnectChanged(func(status client.ConnStatus) {
 		if status == client.Authed {
 			_ = p.requestStart()
-
 			p.setupOnce.Do(func() {
+				p.initLogger()
 				if p.setupHandler != nil {
 					p.setupHandler()
 				}
@@ -135,6 +130,13 @@ func (p *plugin) stop() {
 	if p.stopHandler != nil {
 		p.stopHandler()
 	}
+}
+
+func (p *plugin) initLogger() {
+	// 初始化日志目录
+	opts := wklog.NewOptions()
+	opts.LogDir = path.Join(p.sandbox, "logs")
+	wklog.Configure(opts)
 }
 
 func (p *plugin) send(ctx *Context) {
