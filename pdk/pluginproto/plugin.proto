@@ -29,12 +29,14 @@ message PluginInfo {
 
 // 插件启动返回
 message StartupResp {
+    // 节点id
+    uint64 nodeId = 1; 
     // 是否成功
-    bool success = 1;
+    bool success = 2;
     // 错误信息
-    string errMsg = 2;
+    string errMsg = 3;
     // 沙盒路径
-    string sandboxDir = 3;
+    string sandboxDir = 4;
 }
 
 message SendPacket {

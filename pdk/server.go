@@ -161,6 +161,11 @@ func (s *Server) ClusterChannelBelongNode(req *pluginproto.ClusterChannelBelongN
 	return resp, nil
 }
 
+// NodeId 获取服务端节点ID（插件安装的节点）
+func (s *Server) NodeId() uint64 {
+	return s.plugin.serverNodeId
+}
+
 // SandboxDir 插件沙箱目录 （插件数据可以保存到此目录下）
 func (s *Server) SandboxDir() string {
 	return s.plugin.sandbox

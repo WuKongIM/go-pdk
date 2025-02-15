@@ -63,8 +63,8 @@ type plugin struct {
 	sandbox      string // 沙箱目录
 	r            *Route // http 路由
 	wklog.Log
-
-	setupOnce sync.Once
+	setupOnce    sync.Once
+	serverNodeId uint64 // 服务节点id
 }
 
 func newPlugin(opts *Options, constructor func() interface{}, rpcClient *client.Client) *plugin {
@@ -181,6 +181,7 @@ func (p *plugin) requestStart() error {
 		return fmt.Errorf("startup failed: %s", resp.ErrMsg)
 	}
 	p.sandbox = resp.SandboxDir
+	p.serverNodeId = resp.NodeId
 	return nil
 }
 
