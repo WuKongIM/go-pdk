@@ -144,7 +144,7 @@ func (s *Server) ConversationChannels(uid string) (*pluginproto.ConversationChan
 }
 
 // ClusterChannelBelongNode 获取频道所属节点
-func (s *Server) ClusterChannelBelongNode(req *pluginproto.ClusterChannelBelongNodeReq) (*pluginproto.ClusterChannelBelongNodeResp, error) {
+func (s *Server) ClusterChannelBelongNode(req *pluginproto.ClusterChannelBelongNodeReq) (*pluginproto.ClusterChannelBelongNodeBatchResp, error) {
 	data, err := req.Marshal()
 	if err != nil {
 		return nil, err
@@ -153,7 +153,7 @@ func (s *Server) ClusterChannelBelongNode(req *pluginproto.ClusterChannelBelongN
 	if err != nil {
 		return nil, err
 	}
-	resp := &pluginproto.ClusterChannelBelongNodeResp{}
+	resp := &pluginproto.ClusterChannelBelongNodeBatchResp{}
 	err = resp.Unmarshal(respData)
 	if err != nil {
 		return nil, err
