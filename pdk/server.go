@@ -161,6 +161,53 @@ func (s *Server) ClusterChannelBelongNode(req *pluginproto.ClusterChannelBelongN
 	return resp, nil
 }
 
+// RequestStreamOpen 请求打开流
+func (s *Server) RequestStreamOpen(streamInfo *pluginproto.Stream) (*pluginproto.StreamOpenResp, error) {
+	data, err := streamInfo.Marshal()
+	if err != nil {
+		return nil, err
+	}
+	respData, err := s.Request("/stream/open", data)
+	if err != nil {
+		return nil, err
+	}
+	resp := &pluginproto.StreamOpenResp{}
+	err = resp.Unmarshal(respData)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+// RequestStreamClose 请求关闭流
+func (s *Server) RequestStreamClose(streamNo string) error {
+	req := &pluginproto.StreamCloseReq{
+		StreamNo: streamNo,
+	}
+	data, err := req.Marshal()
+	if err != nil {
+		return err
+	}
+	_, err = s.Request("/stream/close", data)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// RequestStreamWrite 请求写入流
+func (s *Server) RequestStreamWrite(req *pluginproto.StreamWriteReq) error {
+	data, err := req.Marshal()
+	if err != nil {
+		return err
+	}
+	_, err = s.Request("/stream/write", data)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // NodeId 获取服务端节点ID（插件安装的节点）
 func (s *Server) NodeId() uint64 {
 	return s.plugin.serverNodeId

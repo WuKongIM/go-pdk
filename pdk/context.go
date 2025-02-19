@@ -8,8 +8,38 @@ import (
 )
 
 type Context struct {
-	// 数据包
-	Packet interface{}
+	// 发送包
+	SendPacket *pluginproto.SendPacket
+	// 消息包
+	Messages []*pluginproto.Message
+	s        *Server
+}
+
+func newContext(s *Server, sendPacket *pluginproto.SendPacket, messages []*pluginproto.Message) *Context {
+	return &Context{
+		s:          s,
+		SendPacket: sendPacket,
+		Messages:   messages,
+	}
+}
+
+// 打开流
+func (c *Context) OpenStream(streamInfo *pluginproto.Stream) (*Stream, error) {
+
+	resp, err := c.s.RequestStreamOpen(streamInfo)
+	if err != nil {
+		return nil, err
+	}
+
+	stream := newStream(resp.StreamNo, streamInfo, c.s)
+
+	return stream, nil
+}
+
+// 回复消息
+func (c *Context) Reply(payload []byte) error {
+
+	return nil
 }
 
 type HttpContext struct {

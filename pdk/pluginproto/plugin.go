@@ -144,3 +144,42 @@ func (s *StartupResp) Marshal() ([]byte, error) {
 func (s *StartupResp) Unmarshal(data []byte) error {
 	return proto.Unmarshal(data, s)
 }
+
+func (s *Stream) Marshal() ([]byte, error) {
+	return proto.Marshal(s)
+}
+
+func (s *Stream) Unmarshal(data []byte) error {
+	return proto.Unmarshal(data, s)
+}
+
+func (s *StreamOpenResp) Marshal() ([]byte, error) {
+	return proto.Marshal(s)
+}
+func (s *StreamOpenResp) Unmarshal(data []byte) error {
+	return proto.Unmarshal(data, s)
+}
+
+func (s *StreamCloseReq) Marshal() ([]byte, error) {
+	return proto.Marshal(s)
+}
+
+func (s *StreamCloseReq) Unmarshal(data []byte) error {
+	return proto.Unmarshal(data, s)
+}
+
+func (s *StreamWriteReq) Marshal() ([]byte, error) {
+	return proto.Marshal(s)
+}
+
+func (s *StreamWriteReq) Unmarshal(data []byte) error {
+	return proto.Unmarshal(data, s)
+}
+
+func (s *StreamWriteResp) Marshal() ([]byte, error) {
+	return proto.Marshal(s)
+}
+
+func (s *StreamWriteResp) Unmarshal(data []byte) error {
+	return proto.Unmarshal(data, s)
+}

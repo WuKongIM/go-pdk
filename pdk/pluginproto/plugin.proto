@@ -8,7 +8,7 @@ option go_package = "./;pluginproto";
 // 插件信息
 message PluginInfo {
     // 插件唯一编号
-    string No = 1;
+    string no = 1;
     // 插件名称
     string name = 2;
     // 插件拥有的方法
@@ -199,4 +199,52 @@ message ConversationChannelReq {
 // 最近会话频道响应
 message ConversationChannelResp {
     repeated Channel channels = 1; // 频道列表
+}
+
+message Header  {
+    bool noPersist = 1; // 是否持久化
+    bool redDot = 2; // 是否红点
+    bool syncOnce = 3; // 是否同步一次
+}
+
+// 流基本信息
+message Stream {
+    Header header = 1; // 头部
+    string clientMsgNo = 2;// 客户端消息编号（相同编号，客户端只会显示一条，可以为空）
+    string fromUid = 3; // 发送者uid
+    string channelId = 4; // 频道id
+    uint32 channelType = 5; // 频道类型
+    bytes payload = 6; // 消息内容
+}
+
+// 流开启结果
+message StreamOpenResp {
+    string streamNo = 1; // 流编号
+}
+
+// 流关闭请求
+message StreamCloseReq {
+    string streamNo = 1; // 流编号
+    string channelId = 2; // 频道id
+    uint32 channelType = 3; // 频道类型
+}
+
+// 流写入请求
+message StreamWriteReq {
+    Header header = 1; // 头部
+    string streamNo = 2; // 流编号
+    string clientMsgNo = 3;// 客户端消息编号（相同编号，客户端只会显示一条，可以为空）
+    string fromUid = 4; // 发送者uid
+    string channelId = 5; // 频道id
+    uint32 channelType = 6; // 频道类型
+    bytes payload = 7; // 消息内容
+   
+}
+
+// 流写入结果
+message StreamWriteResp {
+     // 消息唯一id（全局唯一）
+    int64 messageId = 1;
+    // 客户端消息编号
+    string clientMsgNo = 2;
 }

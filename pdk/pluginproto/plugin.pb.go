@@ -24,7 +24,7 @@ const (
 type PluginInfo struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// 插件唯一编号
-	No string `protobuf:"bytes,1,opt,name=No,proto3" json:"No,omitempty"`
+	No string `protobuf:"bytes,1,opt,name=no,proto3" json:"no,omitempty"`
 	// 插件名称
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	// 插件拥有的方法
@@ -1389,14 +1389,413 @@ func (x *ConversationChannelResp) GetChannels() []*Channel {
 	return nil
 }
 
+type Header struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	NoPersist     bool                   `protobuf:"varint,1,opt,name=noPersist,proto3" json:"noPersist,omitempty"` // 是否持久化
+	RedDot        bool                   `protobuf:"varint,2,opt,name=redDot,proto3" json:"redDot,omitempty"`       // 是否红点
+	SyncOnce      bool                   `protobuf:"varint,3,opt,name=syncOnce,proto3" json:"syncOnce,omitempty"`   // 是否同步一次
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Header) Reset() {
+	*x = Header{}
+	mi := &file_pdk_pluginproto_plugin_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Header) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Header) ProtoMessage() {}
+
+func (x *Header) ProtoReflect() protoreflect.Message {
+	mi := &file_pdk_pluginproto_plugin_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Header.ProtoReflect.Descriptor instead.
+func (*Header) Descriptor() ([]byte, []int) {
+	return file_pdk_pluginproto_plugin_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *Header) GetNoPersist() bool {
+	if x != nil {
+		return x.NoPersist
+	}
+	return false
+}
+
+func (x *Header) GetRedDot() bool {
+	if x != nil {
+		return x.RedDot
+	}
+	return false
+}
+
+func (x *Header) GetSyncOnce() bool {
+	if x != nil {
+		return x.SyncOnce
+	}
+	return false
+}
+
+// 流基本信息
+type Stream struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Header        *Header                `protobuf:"bytes,1,opt,name=header,proto3" json:"header,omitempty"`            // 头部
+	ClientMsgNo   string                 `protobuf:"bytes,2,opt,name=clientMsgNo,proto3" json:"clientMsgNo,omitempty"`  // 客户端消息编号（相同编号，客户端只会显示一条，可以为空）
+	FromUid       string                 `protobuf:"bytes,3,opt,name=fromUid,proto3" json:"fromUid,omitempty"`          // 发送者uid
+	ChannelId     string                 `protobuf:"bytes,4,opt,name=channelId,proto3" json:"channelId,omitempty"`      // 频道id
+	ChannelType   uint32                 `protobuf:"varint,5,opt,name=channelType,proto3" json:"channelType,omitempty"` // 频道类型
+	Payload       []byte                 `protobuf:"bytes,6,opt,name=payload,proto3" json:"payload,omitempty"`          // 消息内容
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Stream) Reset() {
+	*x = Stream{}
+	mi := &file_pdk_pluginproto_plugin_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Stream) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Stream) ProtoMessage() {}
+
+func (x *Stream) ProtoReflect() protoreflect.Message {
+	mi := &file_pdk_pluginproto_plugin_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Stream.ProtoReflect.Descriptor instead.
+func (*Stream) Descriptor() ([]byte, []int) {
+	return file_pdk_pluginproto_plugin_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *Stream) GetHeader() *Header {
+	if x != nil {
+		return x.Header
+	}
+	return nil
+}
+
+func (x *Stream) GetClientMsgNo() string {
+	if x != nil {
+		return x.ClientMsgNo
+	}
+	return ""
+}
+
+func (x *Stream) GetFromUid() string {
+	if x != nil {
+		return x.FromUid
+	}
+	return ""
+}
+
+func (x *Stream) GetChannelId() string {
+	if x != nil {
+		return x.ChannelId
+	}
+	return ""
+}
+
+func (x *Stream) GetChannelType() uint32 {
+	if x != nil {
+		return x.ChannelType
+	}
+	return 0
+}
+
+func (x *Stream) GetPayload() []byte {
+	if x != nil {
+		return x.Payload
+	}
+	return nil
+}
+
+// 流开启结果
+type StreamOpenResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	StreamNo      string                 `protobuf:"bytes,1,opt,name=streamNo,proto3" json:"streamNo,omitempty"` // 流编号
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StreamOpenResp) Reset() {
+	*x = StreamOpenResp{}
+	mi := &file_pdk_pluginproto_plugin_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StreamOpenResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StreamOpenResp) ProtoMessage() {}
+
+func (x *StreamOpenResp) ProtoReflect() protoreflect.Message {
+	mi := &file_pdk_pluginproto_plugin_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StreamOpenResp.ProtoReflect.Descriptor instead.
+func (*StreamOpenResp) Descriptor() ([]byte, []int) {
+	return file_pdk_pluginproto_plugin_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *StreamOpenResp) GetStreamNo() string {
+	if x != nil {
+		return x.StreamNo
+	}
+	return ""
+}
+
+// 流关闭请求
+type StreamCloseReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	StreamNo      string                 `protobuf:"bytes,1,opt,name=streamNo,proto3" json:"streamNo,omitempty"`        // 流编号
+	ChannelId     string                 `protobuf:"bytes,2,opt,name=channelId,proto3" json:"channelId,omitempty"`      // 频道id
+	ChannelType   uint32                 `protobuf:"varint,3,opt,name=channelType,proto3" json:"channelType,omitempty"` // 频道类型
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StreamCloseReq) Reset() {
+	*x = StreamCloseReq{}
+	mi := &file_pdk_pluginproto_plugin_proto_msgTypes[24]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StreamCloseReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StreamCloseReq) ProtoMessage() {}
+
+func (x *StreamCloseReq) ProtoReflect() protoreflect.Message {
+	mi := &file_pdk_pluginproto_plugin_proto_msgTypes[24]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StreamCloseReq.ProtoReflect.Descriptor instead.
+func (*StreamCloseReq) Descriptor() ([]byte, []int) {
+	return file_pdk_pluginproto_plugin_proto_rawDescGZIP(), []int{24}
+}
+
+func (x *StreamCloseReq) GetStreamNo() string {
+	if x != nil {
+		return x.StreamNo
+	}
+	return ""
+}
+
+func (x *StreamCloseReq) GetChannelId() string {
+	if x != nil {
+		return x.ChannelId
+	}
+	return ""
+}
+
+func (x *StreamCloseReq) GetChannelType() uint32 {
+	if x != nil {
+		return x.ChannelType
+	}
+	return 0
+}
+
+// 流写入请求
+type StreamWriteReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Header        *Header                `protobuf:"bytes,1,opt,name=header,proto3" json:"header,omitempty"`            // 头部
+	StreamNo      string                 `protobuf:"bytes,2,opt,name=streamNo,proto3" json:"streamNo,omitempty"`        // 流编号
+	ClientMsgNo   string                 `protobuf:"bytes,3,opt,name=clientMsgNo,proto3" json:"clientMsgNo,omitempty"`  // 客户端消息编号（相同编号，客户端只会显示一条，可以为空）
+	FromUid       string                 `protobuf:"bytes,4,opt,name=fromUid,proto3" json:"fromUid,omitempty"`          // 发送者uid
+	ChannelId     string                 `protobuf:"bytes,5,opt,name=channelId,proto3" json:"channelId,omitempty"`      // 频道id
+	ChannelType   uint32                 `protobuf:"varint,6,opt,name=channelType,proto3" json:"channelType,omitempty"` // 频道类型
+	Payload       []byte                 `protobuf:"bytes,7,opt,name=payload,proto3" json:"payload,omitempty"`          // 消息内容
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StreamWriteReq) Reset() {
+	*x = StreamWriteReq{}
+	mi := &file_pdk_pluginproto_plugin_proto_msgTypes[25]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StreamWriteReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StreamWriteReq) ProtoMessage() {}
+
+func (x *StreamWriteReq) ProtoReflect() protoreflect.Message {
+	mi := &file_pdk_pluginproto_plugin_proto_msgTypes[25]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StreamWriteReq.ProtoReflect.Descriptor instead.
+func (*StreamWriteReq) Descriptor() ([]byte, []int) {
+	return file_pdk_pluginproto_plugin_proto_rawDescGZIP(), []int{25}
+}
+
+func (x *StreamWriteReq) GetHeader() *Header {
+	if x != nil {
+		return x.Header
+	}
+	return nil
+}
+
+func (x *StreamWriteReq) GetStreamNo() string {
+	if x != nil {
+		return x.StreamNo
+	}
+	return ""
+}
+
+func (x *StreamWriteReq) GetClientMsgNo() string {
+	if x != nil {
+		return x.ClientMsgNo
+	}
+	return ""
+}
+
+func (x *StreamWriteReq) GetFromUid() string {
+	if x != nil {
+		return x.FromUid
+	}
+	return ""
+}
+
+func (x *StreamWriteReq) GetChannelId() string {
+	if x != nil {
+		return x.ChannelId
+	}
+	return ""
+}
+
+func (x *StreamWriteReq) GetChannelType() uint32 {
+	if x != nil {
+		return x.ChannelType
+	}
+	return 0
+}
+
+func (x *StreamWriteReq) GetPayload() []byte {
+	if x != nil {
+		return x.Payload
+	}
+	return nil
+}
+
+// 流写入结果
+type StreamWriteResp struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 消息唯一id（全局唯一）
+	MessageId int64 `protobuf:"varint,1,opt,name=messageId,proto3" json:"messageId,omitempty"`
+	// 客户端消息编号
+	ClientMsgNo   string `protobuf:"bytes,2,opt,name=clientMsgNo,proto3" json:"clientMsgNo,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StreamWriteResp) Reset() {
+	*x = StreamWriteResp{}
+	mi := &file_pdk_pluginproto_plugin_proto_msgTypes[26]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StreamWriteResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StreamWriteResp) ProtoMessage() {}
+
+func (x *StreamWriteResp) ProtoReflect() protoreflect.Message {
+	mi := &file_pdk_pluginproto_plugin_proto_msgTypes[26]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StreamWriteResp.ProtoReflect.Descriptor instead.
+func (*StreamWriteResp) Descriptor() ([]byte, []int) {
+	return file_pdk_pluginproto_plugin_proto_rawDescGZIP(), []int{26}
+}
+
+func (x *StreamWriteResp) GetMessageId() int64 {
+	if x != nil {
+		return x.MessageId
+	}
+	return 0
+}
+
+func (x *StreamWriteResp) GetClientMsgNo() string {
+	if x != nil {
+		return x.ClientMsgNo
+	}
+	return ""
+}
+
 var File_pdk_pluginproto_plugin_proto protoreflect.FileDescriptor
 
 var file_pdk_pluginproto_plugin_proto_rawDesc = []byte{
 	0x0a, 0x1c, 0x70, 0x64, 0x6b, 0x2f, 0x70, 0x6c, 0x75, 0x67, 0x69, 0x6e, 0x70, 0x72, 0x6f, 0x74,
 	0x6f, 0x2f, 0x70, 0x6c, 0x75, 0x67, 0x69, 0x6e, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x0b,
 	0x70, 0x6c, 0x75, 0x67, 0x69, 0x6e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0x84, 0x02, 0x0a, 0x0a,
-	0x50, 0x6c, 0x75, 0x67, 0x69, 0x6e, 0x49, 0x6e, 0x66, 0x6f, 0x12, 0x0e, 0x0a, 0x02, 0x4e, 0x6f,
-	0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x02, 0x4e, 0x6f, 0x12, 0x12, 0x0a, 0x04, 0x6e, 0x61,
+	0x50, 0x6c, 0x75, 0x67, 0x69, 0x6e, 0x49, 0x6e, 0x66, 0x6f, 0x12, 0x0e, 0x0a, 0x02, 0x6e, 0x6f,
+	0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x02, 0x6e, 0x6f, 0x12, 0x12, 0x0a, 0x04, 0x6e, 0x61,
 	0x6d, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x18,
 	0x0a, 0x07, 0x6d, 0x65, 0x74, 0x68, 0x6f, 0x64, 0x73, 0x18, 0x03, 0x20, 0x03, 0x28, 0x09, 0x52,
 	0x07, 0x6d, 0x65, 0x74, 0x68, 0x6f, 0x64, 0x73, 0x12, 0x18, 0x0a, 0x07, 0x76, 0x65, 0x72, 0x73,
@@ -1579,8 +1978,57 @@ var file_pdk_pluginproto_plugin_proto_rawDesc = []byte{
 	0x73, 0x70, 0x12, 0x30, 0x0a, 0x08, 0x63, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x73, 0x18, 0x01,
 	0x20, 0x03, 0x28, 0x0b, 0x32, 0x14, 0x2e, 0x70, 0x6c, 0x75, 0x67, 0x69, 0x6e, 0x70, 0x72, 0x6f,
 	0x74, 0x6f, 0x2e, 0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x52, 0x08, 0x63, 0x68, 0x61, 0x6e,
-	0x6e, 0x65, 0x6c, 0x73, 0x42, 0x10, 0x5a, 0x0e, 0x2e, 0x2f, 0x3b, 0x70, 0x6c, 0x75, 0x67, 0x69,
-	0x6e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x6e, 0x65, 0x6c, 0x73, 0x22, 0x5a, 0x0a, 0x06, 0x48, 0x65, 0x61, 0x64, 0x65, 0x72, 0x12, 0x1c,
+	0x0a, 0x09, 0x6e, 0x6f, 0x50, 0x65, 0x72, 0x73, 0x69, 0x73, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28,
+	0x08, 0x52, 0x09, 0x6e, 0x6f, 0x50, 0x65, 0x72, 0x73, 0x69, 0x73, 0x74, 0x12, 0x16, 0x0a, 0x06,
+	0x72, 0x65, 0x64, 0x44, 0x6f, 0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x08, 0x52, 0x06, 0x72, 0x65,
+	0x64, 0x44, 0x6f, 0x74, 0x12, 0x1a, 0x0a, 0x08, 0x73, 0x79, 0x6e, 0x63, 0x4f, 0x6e, 0x63, 0x65,
+	0x18, 0x03, 0x20, 0x01, 0x28, 0x08, 0x52, 0x08, 0x73, 0x79, 0x6e, 0x63, 0x4f, 0x6e, 0x63, 0x65,
+	0x22, 0xcb, 0x01, 0x0a, 0x06, 0x53, 0x74, 0x72, 0x65, 0x61, 0x6d, 0x12, 0x2b, 0x0a, 0x06, 0x68,
+	0x65, 0x61, 0x64, 0x65, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x13, 0x2e, 0x70, 0x6c,
+	0x75, 0x67, 0x69, 0x6e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x48, 0x65, 0x61, 0x64, 0x65, 0x72,
+	0x52, 0x06, 0x68, 0x65, 0x61, 0x64, 0x65, 0x72, 0x12, 0x20, 0x0a, 0x0b, 0x63, 0x6c, 0x69, 0x65,
+	0x6e, 0x74, 0x4d, 0x73, 0x67, 0x4e, 0x6f, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0b, 0x63,
+	0x6c, 0x69, 0x65, 0x6e, 0x74, 0x4d, 0x73, 0x67, 0x4e, 0x6f, 0x12, 0x18, 0x0a, 0x07, 0x66, 0x72,
+	0x6f, 0x6d, 0x55, 0x69, 0x64, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x66, 0x72, 0x6f,
+	0x6d, 0x55, 0x69, 0x64, 0x12, 0x1c, 0x0a, 0x09, 0x63, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x49,
+	0x64, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x63, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c,
+	0x49, 0x64, 0x12, 0x20, 0x0a, 0x0b, 0x63, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x54, 0x79, 0x70,
+	0x65, 0x18, 0x05, 0x20, 0x01, 0x28, 0x0d, 0x52, 0x0b, 0x63, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c,
+	0x54, 0x79, 0x70, 0x65, 0x12, 0x18, 0x0a, 0x07, 0x70, 0x61, 0x79, 0x6c, 0x6f, 0x61, 0x64, 0x18,
+	0x06, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x07, 0x70, 0x61, 0x79, 0x6c, 0x6f, 0x61, 0x64, 0x22, 0x2c,
+	0x0a, 0x0e, 0x53, 0x74, 0x72, 0x65, 0x61, 0x6d, 0x4f, 0x70, 0x65, 0x6e, 0x52, 0x65, 0x73, 0x70,
+	0x12, 0x1a, 0x0a, 0x08, 0x73, 0x74, 0x72, 0x65, 0x61, 0x6d, 0x4e, 0x6f, 0x18, 0x01, 0x20, 0x01,
+	0x28, 0x09, 0x52, 0x08, 0x73, 0x74, 0x72, 0x65, 0x61, 0x6d, 0x4e, 0x6f, 0x22, 0x6c, 0x0a, 0x0e,
+	0x53, 0x74, 0x72, 0x65, 0x61, 0x6d, 0x43, 0x6c, 0x6f, 0x73, 0x65, 0x52, 0x65, 0x71, 0x12, 0x1a,
+	0x0a, 0x08, 0x73, 0x74, 0x72, 0x65, 0x61, 0x6d, 0x4e, 0x6f, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09,
+	0x52, 0x08, 0x73, 0x74, 0x72, 0x65, 0x61, 0x6d, 0x4e, 0x6f, 0x12, 0x1c, 0x0a, 0x09, 0x63, 0x68,
+	0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x49, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x63,
+	0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x49, 0x64, 0x12, 0x20, 0x0a, 0x0b, 0x63, 0x68, 0x61, 0x6e,
+	0x6e, 0x65, 0x6c, 0x54, 0x79, 0x70, 0x65, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0d, 0x52, 0x0b, 0x63,
+	0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x54, 0x79, 0x70, 0x65, 0x22, 0xef, 0x01, 0x0a, 0x0e, 0x53,
+	0x74, 0x72, 0x65, 0x61, 0x6d, 0x57, 0x72, 0x69, 0x74, 0x65, 0x52, 0x65, 0x71, 0x12, 0x2b, 0x0a,
+	0x06, 0x68, 0x65, 0x61, 0x64, 0x65, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x13, 0x2e,
+	0x70, 0x6c, 0x75, 0x67, 0x69, 0x6e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x48, 0x65, 0x61, 0x64,
+	0x65, 0x72, 0x52, 0x06, 0x68, 0x65, 0x61, 0x64, 0x65, 0x72, 0x12, 0x1a, 0x0a, 0x08, 0x73, 0x74,
+	0x72, 0x65, 0x61, 0x6d, 0x4e, 0x6f, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x73, 0x74,
+	0x72, 0x65, 0x61, 0x6d, 0x4e, 0x6f, 0x12, 0x20, 0x0a, 0x0b, 0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74,
+	0x4d, 0x73, 0x67, 0x4e, 0x6f, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0b, 0x63, 0x6c, 0x69,
+	0x65, 0x6e, 0x74, 0x4d, 0x73, 0x67, 0x4e, 0x6f, 0x12, 0x18, 0x0a, 0x07, 0x66, 0x72, 0x6f, 0x6d,
+	0x55, 0x69, 0x64, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x66, 0x72, 0x6f, 0x6d, 0x55,
+	0x69, 0x64, 0x12, 0x1c, 0x0a, 0x09, 0x63, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x49, 0x64, 0x18,
+	0x05, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x63, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x49, 0x64,
+	0x12, 0x20, 0x0a, 0x0b, 0x63, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x54, 0x79, 0x70, 0x65, 0x18,
+	0x06, 0x20, 0x01, 0x28, 0x0d, 0x52, 0x0b, 0x63, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x54, 0x79,
+	0x70, 0x65, 0x12, 0x18, 0x0a, 0x07, 0x70, 0x61, 0x79, 0x6c, 0x6f, 0x61, 0x64, 0x18, 0x07, 0x20,
+	0x01, 0x28, 0x0c, 0x52, 0x07, 0x70, 0x61, 0x79, 0x6c, 0x6f, 0x61, 0x64, 0x22, 0x51, 0x0a, 0x0f,
+	0x53, 0x74, 0x72, 0x65, 0x61, 0x6d, 0x57, 0x72, 0x69, 0x74, 0x65, 0x52, 0x65, 0x73, 0x70, 0x12,
+	0x1c, 0x0a, 0x09, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x49, 0x64, 0x18, 0x01, 0x20, 0x01,
+	0x28, 0x03, 0x52, 0x09, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x49, 0x64, 0x12, 0x20, 0x0a,
+	0x0b, 0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x4d, 0x73, 0x67, 0x4e, 0x6f, 0x18, 0x02, 0x20, 0x01,
+	0x28, 0x09, 0x52, 0x0b, 0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x4d, 0x73, 0x67, 0x4e, 0x6f, 0x42,
+	0x10, 0x5a, 0x0e, 0x2e, 0x2f, 0x3b, 0x70, 0x6c, 0x75, 0x67, 0x69, 0x6e, 0x70, 0x72, 0x6f, 0x74,
+	0x6f, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -1595,7 +2043,7 @@ func file_pdk_pluginproto_plugin_proto_rawDescGZIP() []byte {
 	return file_pdk_pluginproto_plugin_proto_rawDescData
 }
 
-var file_pdk_pluginproto_plugin_proto_msgTypes = make([]protoimpl.MessageInfo, 24)
+var file_pdk_pluginproto_plugin_proto_msgTypes = make([]protoimpl.MessageInfo, 30)
 var file_pdk_pluginproto_plugin_proto_goTypes = []any{
 	(*PluginInfo)(nil),                        // 0: pluginproto.PluginInfo
 	(*StartupResp)(nil),                       // 1: pluginproto.StartupResp
@@ -1618,15 +2066,21 @@ var file_pdk_pluginproto_plugin_proto_goTypes = []any{
 	(*ForwardHttpReq)(nil),                    // 18: pluginproto.ForwardHttpReq
 	(*ConversationChannelReq)(nil),            // 19: pluginproto.ConversationChannelReq
 	(*ConversationChannelResp)(nil),           // 20: pluginproto.ConversationChannelResp
-	nil,                                       // 21: pluginproto.HttpRequest.HeadersEntry
-	nil,                                       // 22: pluginproto.HttpRequest.QueryEntry
-	nil,                                       // 23: pluginproto.HttpResponse.HeadersEntry
+	(*Header)(nil),                            // 21: pluginproto.Header
+	(*Stream)(nil),                            // 22: pluginproto.Stream
+	(*StreamOpenResp)(nil),                    // 23: pluginproto.StreamOpenResp
+	(*StreamCloseReq)(nil),                    // 24: pluginproto.StreamCloseReq
+	(*StreamWriteReq)(nil),                    // 25: pluginproto.StreamWriteReq
+	(*StreamWriteResp)(nil),                   // 26: pluginproto.StreamWriteResp
+	nil,                                       // 27: pluginproto.HttpRequest.HeadersEntry
+	nil,                                       // 28: pluginproto.HttpRequest.QueryEntry
+	nil,                                       // 29: pluginproto.HttpResponse.HeadersEntry
 }
 var file_pdk_pluginproto_plugin_proto_depIdxs = []int32{
 	3,  // 0: pluginproto.MessageBatch.messages:type_name -> pluginproto.Message
-	21, // 1: pluginproto.HttpRequest.headers:type_name -> pluginproto.HttpRequest.HeadersEntry
-	22, // 2: pluginproto.HttpRequest.query:type_name -> pluginproto.HttpRequest.QueryEntry
-	23, // 3: pluginproto.HttpResponse.headers:type_name -> pluginproto.HttpResponse.HeadersEntry
+	27, // 1: pluginproto.HttpRequest.headers:type_name -> pluginproto.HttpRequest.HeadersEntry
+	28, // 2: pluginproto.HttpRequest.query:type_name -> pluginproto.HttpRequest.QueryEntry
+	29, // 3: pluginproto.HttpResponse.headers:type_name -> pluginproto.HttpResponse.HeadersEntry
 	7,  // 4: pluginproto.ChannelMessageBatchReq.channelMessageReqs:type_name -> pluginproto.ChannelMessageReq
 	3,  // 5: pluginproto.ChannelMessageResp.messages:type_name -> pluginproto.Message
 	9,  // 6: pluginproto.ChannelMessageBatchResp.channelMessageResps:type_name -> pluginproto.ChannelMessageResp
@@ -1637,11 +2091,13 @@ var file_pdk_pluginproto_plugin_proto_depIdxs = []int32{
 	16, // 11: pluginproto.ClusterChannelBelongNodeBatchResp.clusterChannelBelongNodeResps:type_name -> pluginproto.ClusterChannelBelongNodeResp
 	5,  // 12: pluginproto.ForwardHttpReq.request:type_name -> pluginproto.HttpRequest
 	14, // 13: pluginproto.ConversationChannelResp.channels:type_name -> pluginproto.Channel
-	14, // [14:14] is the sub-list for method output_type
-	14, // [14:14] is the sub-list for method input_type
-	14, // [14:14] is the sub-list for extension type_name
-	14, // [14:14] is the sub-list for extension extendee
-	0,  // [0:14] is the sub-list for field type_name
+	21, // 14: pluginproto.Stream.header:type_name -> pluginproto.Header
+	21, // 15: pluginproto.StreamWriteReq.header:type_name -> pluginproto.Header
+	16, // [16:16] is the sub-list for method output_type
+	16, // [16:16] is the sub-list for method input_type
+	16, // [16:16] is the sub-list for extension type_name
+	16, // [16:16] is the sub-list for extension extendee
+	0,  // [0:16] is the sub-list for field type_name
 }
 
 func init() { file_pdk_pluginproto_plugin_proto_init() }
@@ -1655,7 +2111,7 @@ func file_pdk_pluginproto_plugin_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_pdk_pluginproto_plugin_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   24,
+			NumMessages:   30,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

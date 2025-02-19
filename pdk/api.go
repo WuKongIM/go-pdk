@@ -38,9 +38,8 @@ func (s *Server) send(c *client.Context) {
 		return
 	}
 
-	s.plugin.send(&Context{
-		Packet: sendPacket,
-	})
+	ctx := newContext(s, sendPacket, nil)
+	s.plugin.send(ctx)
 
 	resultData, err := sendPacket.Marshal()
 	if err != nil {
@@ -64,10 +63,9 @@ func (s *Server) persistAfter(c *client.Context) {
 	c.WriteOk()
 }
 
-func (s *Server) handlePersistAfter(messages *pluginproto.MessageBatch) {
-	s.plugin.persistAfter(&Context{
-		Packet: messages,
-	})
+func (s *Server) handlePersistAfter(messageBatch *pluginproto.MessageBatch) {
+	ctx := newContext(s, nil, messageBatch.Messages)
+	s.plugin.persistAfter(ctx)
 }
 
 func (s *Server) route(c *client.Context) {

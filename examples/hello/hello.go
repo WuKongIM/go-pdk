@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/WuKongIM/go-pdk/pdk"
-	"github.com/WuKongIM/go-pdk/pdk/pluginproto"
 )
 
 var Version = "0.0.1"   // 插件版本
@@ -40,13 +39,13 @@ func (s Hello) Route(c *pdk.Route) {
 // 消息发送前（适合敏感词过滤之类的插件）(同步调用)
 func (s Hello) Send(c *pdk.Context) {
 
-	sendPacket := c.Packet.(*pluginproto.SendPacket)
+	sendPacket := c.SendPacket
 	sendPacket.Payload = []byte("{\"content\":\"hello\",\"type\":1}")
 }
 
 // 消息持久化后（适合消息搜索类插件）（默认异步调用）
 func (s Hello) PersistAfter(c *pdk.Context) {
-	fmt.Println("PersistAfter:", c.Packet)
+	fmt.Println("PersistAfter:", c.Messages)
 }
 
 // 回复消息（适合AI类插件）（默认异步调用）
