@@ -40,3 +40,17 @@ func (s *Stream) Write(data []byte) error {
 		Payload:     data,
 	})
 }
+
+type StreamOption func(*pluginproto.Stream)
+
+func StreamWithHeader(header *pluginproto.Header) StreamOption {
+	return func(s *pluginproto.Stream) {
+		s.Header = header
+	}
+}
+
+func StreamWithPayload(payload []byte) StreamOption {
+	return func(s *pluginproto.Stream) {
+		s.Payload = payload
+	}
+}

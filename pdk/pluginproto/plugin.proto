@@ -39,15 +39,30 @@ message StartupResp {
     string sandboxDir = 4;
 }
 
+// 发送包
 message SendPacket {
     // 发送者
-    string from = 1;
+    string fromUid = 1;
     // 接收频道
     string channelId = 2;
     // 频道类型
     uint32 channelType = 3;  
     // 消息内容
     bytes payload = 4;
+}
+
+// 接收包
+message RecvPacket {
+     // 发送者
+    string fromUid = 1;
+    // 接受者
+    string toUid = 2;
+    // 接收频道
+    string channelId = 3;
+    // 频道类型
+    uint32 channelType = 4;  
+    // 消息内容
+    bytes payload = 5;
 }
 
 message Message {

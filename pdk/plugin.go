@@ -146,6 +146,13 @@ func (p *plugin) send(ctx *Context) {
 	}
 }
 
+func (p *plugin) reply(ctx *Context) {
+	handler := p.handlers[PluginReply.String()]
+	if handler != nil {
+		handler(ctx)
+	}
+}
+
 func (p *plugin) persistAfter(ctx *Context) {
 	handler := p.handlers[PluginPersistAfter.String()]
 	if handler != nil {

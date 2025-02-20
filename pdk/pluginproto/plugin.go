@@ -183,3 +183,11 @@ func (s *StreamWriteResp) Marshal() ([]byte, error) {
 func (s *StreamWriteResp) Unmarshal(data []byte) error {
 	return proto.Unmarshal(data, s)
 }
+
+func (r *RecvPacket) Marshal() ([]byte, error) {
+	return proto.Marshal(r)
+}
+
+func (r *RecvPacket) Unmarshal(data []byte) error {
+	return proto.Unmarshal(data, r)
+}

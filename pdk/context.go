@@ -2,8 +2,10 @@ package pdk
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 
+	wkproto "github.com/WuKongIM/WuKongIMGoProto"
 	"github.com/WuKongIM/go-pdk/pdk/pluginproto"
 )
 
@@ -12,20 +14,51 @@ type Context struct {
 	SendPacket *pluginproto.SendPacket
 	// 消息包
 	Messages []*pluginproto.Message
-	s        *Server
+	// 接收包
+	RecvPacket *pluginproto.RecvPacket
+	s          *Server
 }
 
-func newContext(s *Server, sendPacket *pluginproto.SendPacket, messages []*pluginproto.Message) *Context {
+func newMessageContext(s *Server, messages []*pluginproto.Message) *Context {
+	return &Context{
+		s:        s,
+		Messages: messages,
+	}
+}
+
+func newSendContext(s *Server, sendPacket *pluginproto.SendPacket) *Context {
 	return &Context{
 		s:          s,
 		SendPacket: sendPacket,
-		Messages:   messages,
+	}
+}
+
+func newRecvContext(s *Server, recvPacket *pluginproto.RecvPacket) *Context {
+	return &Context{
+		s:          s,
+		RecvPacket: recvPacket,
 	}
 }
 
 // 打开流
-func (c *Context) OpenStream(streamInfo *pluginproto.Stream) (*Stream, error) {
+func (c *Context) OpenStream(opt ...StreamOption) (*Stream, error) {
 
+	if c.RecvPacket == nil {
+		return nil, errors.New("RecvPacket is nil")
+	}
+
+	channelId := c.RecvPacket.ChannelId
+	if c.RecvPacket.ChannelType == uint32(wkproto.ChannelTypePerson) {
+		channelId = c.RecvPacket.FromUid
+	}
+	streamInfo := &pluginproto.Stream{
+		FromUid:     c.RecvPacket.ToUid,
+		ChannelId:   channelId,
+		ChannelType: c.RecvPacket.ChannelType,
+	}
+	for _, o := range opt {
+		o(streamInfo)
+	}
 	resp, err := c.s.RequestStreamOpen(streamInfo)
 	if err != nil {
 		return nil, err

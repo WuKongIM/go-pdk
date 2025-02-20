@@ -7,12 +7,13 @@ import (
 	"github.com/WuKongIM/go-pdk/pdk"
 )
 
-var Version = "0.0.1"   // 插件版本
-var Priority = int32(1) // 插件优先级
+var PluginNo = "wk.plugin.hello" // 插件编号
+var Version = "0.0.1"            // 插件版本
+var Priority = int32(1)          // 插件优先级
 
 func main() {
 
-	err := pdk.RunServer(New, "wk.plugin.hello", pdk.WithVersion(Version), pdk.WithPriority(Priority))
+	err := pdk.RunServer(New, PluginNo, pdk.WithVersion(Version), pdk.WithPriority(Priority))
 	if err != nil {
 		panic(err)
 	}

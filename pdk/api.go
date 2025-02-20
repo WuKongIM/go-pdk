@@ -11,6 +11,7 @@ func (s *Server) routes() {
 	s.rpcClient.Route("/plugin/send", s.send)
 	s.rpcClient.Route("/plugin/persist_after", s.persistAfter)
 	s.rpcClient.Route("/plugin/route", s.route)
+	s.rpcClient.Route("/plugin/reply", s.reply)
 }
 
 // 收到消息
@@ -25,6 +26,14 @@ func (s *Server) onMessage() {
 				return
 			}
 			s.handlePersistAfter(messages)
+		case uint32(PluginMethodTypeReply):
+			recvPacket := &pluginproto.RecvPacket{}
+			err := recvPacket.Unmarshal(msg.Content)
+			if err != nil {
+				s.Error("unmarshal recv packet error", zap.Error(err))
+				return
+			}
+			s.handleReply(recvPacket)
 		}
 	})
 }
@@ -38,7 +47,7 @@ func (s *Server) send(c *client.Context) {
 		return
 	}
 
-	ctx := newContext(s, sendPacket, nil)
+	ctx := newSendContext(s, sendPacket)
 	s.plugin.send(ctx)
 
 	resultData, err := sendPacket.Marshal()
@@ -63,9 +72,25 @@ func (s *Server) persistAfter(c *client.Context) {
 	c.WriteOk()
 }
 
+func (s *Server) reply(c *client.Context) {
+	recvPacket := &pluginproto.RecvPacket{}
+	err := recvPacket.Unmarshal(c.Body())
+	if err != nil {
+		s.Error("unmarshal recv packet error", zap.Error(err))
+		c.WriteErr(err)
+		return
+	}
+	s.handleReply(recvPacket)
+}
+
 func (s *Server) handlePersistAfter(messageBatch *pluginproto.MessageBatch) {
-	ctx := newContext(s, nil, messageBatch.Messages)
+	ctx := newMessageContext(s, messageBatch.Messages)
 	s.plugin.persistAfter(ctx)
+}
+
+func (s *Server) handleReply(recvPacket *pluginproto.RecvPacket) {
+	ctx := newRecvContext(s, recvPacket)
+	s.plugin.reply(ctx)
 }
 
 func (s *Server) route(c *client.Context) {
