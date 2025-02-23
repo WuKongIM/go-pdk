@@ -31,6 +31,7 @@ func (s *Stream) Close() error {
 
 func (s *Stream) Write(data []byte) error {
 
+	s.streamInfo.Header.RedDot = false // 流消息不需要红点
 	return s.s.RequestStreamWrite(&pluginproto.StreamWriteReq{
 		Header:      s.streamInfo.Header,
 		StreamNo:    s.streamNo,
@@ -49,8 +50,12 @@ func StreamWithHeader(header *pluginproto.Header) StreamOption {
 	}
 }
 
-func StreamWithPayload(payload []byte) StreamOption {
+func StreamWithPayload(payload Payload) StreamOption {
 	return func(s *pluginproto.Stream) {
-		s.Payload = payload
+		data, err := payload.Encode()
+		if err != nil {
+			panic(err)
+		}
+		s.Payload = data
 	}
 }

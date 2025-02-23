@@ -1,6 +1,9 @@
 package pdk
 
 import (
+	"fmt"
+	"syscall"
+
 	"github.com/WuKongIM/go-pdk/pdk/pluginproto"
 	"github.com/WuKongIM/wkrpc/client"
 	"github.com/WuKongIM/wkrpc/proto"
@@ -8,10 +11,11 @@ import (
 )
 
 func (s *Server) routes() {
-	s.rpcClient.Route("/plugin/send", s.send)
-	s.rpcClient.Route("/plugin/persist_after", s.persistAfter)
-	s.rpcClient.Route("/plugin/route", s.route)
-	s.rpcClient.Route("/plugin/reply", s.reply)
+	s.rpcClient.Route("/plugin/send", s.send)                  // 发送消息请求
+	s.rpcClient.Route("/plugin/persist_after", s.persistAfter) // 存储消息后请求
+	s.rpcClient.Route("/plugin/route", s.route)                // 路由请求
+	s.rpcClient.Route("/plugin/reply", s.reply)                // 回复请求
+	s.rpcClient.Route("/stop", s.handleStop)                   // WuKongIM请求停止插件
 }
 
 // 收到消息
@@ -121,4 +125,15 @@ func (s *Server) route(c *client.Context) {
 		return
 	}
 	c.Write(data)
+}
+
+func (s *Server) handleStop(c *client.Context) {
+
+	fmt.Println("plugin stop...")
+
+	select {
+	case s.sigChan <- syscall.SIGTERM:
+	default:
+	}
+	c.WriteOk()
 }

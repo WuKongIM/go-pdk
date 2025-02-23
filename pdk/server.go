@@ -65,6 +65,7 @@ type Server struct {
 	plugin    *plugin
 	opts      *Options
 	wklog.Log
+	sigChan chan os.Signal
 }
 
 func newServer(rpcClient *client.Client, plugin *plugin, opts *Options) *Server {
@@ -74,6 +75,7 @@ func newServer(rpcClient *client.Client, plugin *plugin, opts *Options) *Server 
 		rpcClient: rpcClient,
 		plugin:    plugin,
 		Log:       wklog.NewWKLog(fmt.Sprintf("Server[%s]", opts.No)),
+		sigChan:   make(chan os.Signal, 1),
 	}
 }
 
@@ -225,18 +227,15 @@ func (s *Server) run() error {
 
 	s.plugin.start()
 
-	// 创建一个接收信号的channel
-	sigChan := make(chan os.Signal, 1)
 	// 通知该channel接收SIGTERM信号（例如，kill命令发送的信号）和SIGINT（Ctrl+C）信号
-	signal.Notify(sigChan, syscall.SIGTERM, syscall.SIGINT)
+	signal.Notify(s.sigChan, syscall.SIGTERM, syscall.SIGINT)
 	// 阻塞直到接收到信号
-	<-sigChan
+	<-s.sigChan
 
 	return nil
 }
 
 func (s *Server) stop() {
-
 	s.plugin.stop()
 }
 
