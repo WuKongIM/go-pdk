@@ -39,7 +39,7 @@ func New() interface{} {
 func (r *Robot) Setup() {
 	fmt.Println("plugin setup...")
 	r.client = arkruntime.NewClientWithApiKey(
-		"xxxx",
+		"de509a56-03d4-4fae-abf1-48fde91151d9",
 	)
 
 }

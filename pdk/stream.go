@@ -31,7 +31,12 @@ func (s *Stream) Close() error {
 
 func (s *Stream) Write(data []byte) error {
 
-	s.streamInfo.Header.RedDot = false // 流消息不需要红点
+	if s.streamInfo != nil && s.streamInfo.Header != nil {
+		s.streamInfo.Header.RedDot = false // 流消息不需要红点
+	} else {
+		s.streamInfo.Header = &pluginproto.Header{RedDot: false}
+	}
+
 	return s.s.RequestStreamWrite(&pluginproto.StreamWriteReq{
 		Header:      s.streamInfo.Header,
 		StreamNo:    s.streamNo,
