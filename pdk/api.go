@@ -2,7 +2,6 @@ package pdk
 
 import (
 	"encoding/json"
-	"fmt"
 	"syscall"
 
 	"github.com/WuKongIM/go-pdk/pdk/pluginproto"
@@ -131,7 +130,8 @@ func (s *Server) route(c *client.Context) {
 
 func (s *Server) handleStop(c *client.Context) {
 
-	fmt.Println("plugin stop...")
+	// 服务端主动停止插件
+	s.Info("Server actively stops the plugin")
 
 	select {
 	case s.sigChan <- syscall.SIGTERM:
