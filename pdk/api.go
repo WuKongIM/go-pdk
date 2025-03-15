@@ -1,6 +1,7 @@
 package pdk
 
 import (
+	"encoding/json"
 	"fmt"
 	"syscall"
 
@@ -11,11 +12,12 @@ import (
 )
 
 func (s *Server) routes() {
-	s.rpcClient.Route("/plugin/send", s.send)                  // 发送消息请求
-	s.rpcClient.Route("/plugin/persist_after", s.persistAfter) // 存储消息后请求
-	s.rpcClient.Route("/plugin/route", s.route)                // 路由请求
-	s.rpcClient.Route("/plugin/reply", s.reply)                // 回复请求
-	s.rpcClient.Route("/stop", s.handleStop)                   // WuKongIM请求停止插件
+	s.rpcClient.Route("/plugin/send", s.send)                        // 发送消息请求
+	s.rpcClient.Route("/plugin/persist_after", s.persistAfter)       // 存储消息后请求
+	s.rpcClient.Route("/plugin/route", s.route)                      // 路由请求
+	s.rpcClient.Route("/plugin/reply", s.reply)                      // 回复请求
+	s.rpcClient.Route("/plugin/config_update", s.handleConfigUpdate) // WuKongIM请求更新插件配置
+	s.rpcClient.Route("/stop", s.handleStop)                         // WuKongIM请求停止插件
 }
 
 // 收到消息
@@ -135,5 +137,18 @@ func (s *Server) handleStop(c *client.Context) {
 	case s.sigChan <- syscall.SIGTERM:
 	default:
 	}
+	c.WriteOk()
+}
+
+func (s *Server) handleConfigUpdate(c *client.Context) {
+
+	var config map[string]interface{}
+	err := json.Unmarshal(c.Body(), &config)
+	if err != nil {
+		s.Error("unmarshal config error", zap.Error(err))
+		c.WriteErr(err)
+		return
+	}
+	s.plugin.configUpdate(config)
 	c.WriteOk()
 }

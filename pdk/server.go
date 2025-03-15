@@ -1,6 +1,7 @@
 package pdk
 
 import (
+	"flag"
 	"fmt"
 	"os"
 	"os/signal"
@@ -12,6 +13,15 @@ import (
 	"github.com/WuKongIM/wkrpc/client"
 )
 
+var (
+	socketPath = flag.String("socket", "", "unix socket path") // socket路径
+	sandbox    = flag.String("sandbox", "", "sandbox dir")     // 沙箱目录
+)
+
+func parseCli() {
+	flag.Parse()
+}
+
 var S *Server
 
 func RunServer(constructor func() interface{}, no string, opt ...Option) error {
@@ -19,12 +29,17 @@ func RunServer(constructor func() interface{}, no string, opt ...Option) error {
 		return fmt.Errorf("constructor is nil")
 	}
 
+	parseCli()
+
 	// 创建选项
 	opts := newOptions()
 	for _, o := range opt {
 		o(opts)
 	}
 	opts.No = no
+	if sandbox != nil && *sandbox != "" {
+		opts.Sandbox = *sandbox
+	}
 	// 创建rpc客户端
 	rpcClient := newRpcClient(no)
 	err := rpcClient.Start()
@@ -240,6 +255,11 @@ func (s *Server) stop() {
 }
 
 func getSocketPath() (string, error) {
+
+	if socketPath != nil && *socketPath != "" {
+		return *socketPath, nil
+	}
+
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		return "", err

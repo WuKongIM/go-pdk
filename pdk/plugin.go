@@ -2,10 +2,12 @@ package pdk
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"path"
 	"reflect"
+	"strings"
 	"sync"
 	"time"
 
@@ -13,6 +15,7 @@ import (
 	"github.com/WuKongIM/wklog"
 	"github.com/WuKongIM/wkrpc/client"
 	"github.com/WuKongIM/wkrpc/proto"
+	"go.uber.org/zap"
 )
 
 type PluginMethod string
@@ -22,6 +25,7 @@ const (
 	PluginPersistAfter PluginMethod = "PersistAfter"
 	PluginReply        PluginMethod = "Reply"
 	PluginRoute        PluginMethod = "Route"
+	PluginConfigUpdate PluginMethod = "ConfigUpdate"
 )
 
 func (p PluginMethod) String() string {
@@ -35,6 +39,7 @@ const (
 	PluginMethodTypePersistAfter PluginMethodType = 2
 	PluginMethodTypeReply        PluginMethodType = 3
 	PluginMethodTypeRoute        PluginMethodType = 4
+	PluginMethodTypeConfigUpdate PluginMethodType = 5
 )
 
 func (p PluginMethod) Type() PluginMethodType {
@@ -47,30 +52,38 @@ func (p PluginMethod) Type() PluginMethodType {
 		return PluginMethodTypeReply
 	case PluginRoute:
 		return PluginMethodTypeRoute
+	case PluginConfigUpdate:
+		return PluginMethodTypeConfigUpdate
 	}
 	return 0
 }
 
 type plugin struct {
-	constructor  func() interface{}
-	opts         *Options
-	rpcClient    *client.Client
-	methods      []string
-	handlers     map[string]func(*Context)
-	routeHandler func(*Route)
-	stopHandler  func()
-	setupHandler func()
-	sandbox      string // 沙箱目录
-	r            *Route // http 路由
+	constructor         func() interface{}
+	opts                *Options
+	rpcClient           *client.Client
+	methods             []string
+	handlers            map[string]func(*Context)
+	routeHandler        func(*Route)
+	stopHandler         func()
+	setupHandler        func()
+	configUpdateHandler func()
+	sandbox             string // 沙箱目录
+	r                   *Route // http 路由
 	wklog.Log
 	setupOnce    sync.Once
-	serverNodeId uint64 // 服务节点id
+	serverNodeId uint64                      // 服务节点id
+	cfgTemplate  *pluginproto.ConfigTemplate // 插件配置模版
+	configType   reflect.Type                // 配置对象的类型
+	instance     interface{}
 }
 
 func newPlugin(opts *Options, constructor func() interface{}, rpcClient *client.Client) *plugin {
 
 	instance := constructor()
 	t := reflect.TypeOf(instance)
+
+	configType := getPluginConfigTemplateType(t)
 
 	// 获取路由处理函数
 	routeHandler := getRouteHandler(instance)
@@ -86,18 +99,30 @@ func newPlugin(opts *Options, constructor func() interface{}, rpcClient *client.
 	// setup handler
 	setupHandler := getSetupHandler(instance)
 
-	return &plugin{
-		constructor:  constructor,
-		opts:         opts,
-		rpcClient:    rpcClient,
-		methods:      getHandlerNames(t),
-		handlers:     getHandlers(instance),
-		routeHandler: routeHandler,
-		stopHandler:  stopHandler,
-		setupHandler: setupHandler,
-		r:            r,
-		Log:          wklog.NewWKLog(fmt.Sprintf("Plugin[%s]", opts.No)),
+	// config update handler
+	configUpdateHandler := getConfigUpdateHandler(instance)
+
+	pg := &plugin{
+		constructor:         constructor,
+		opts:                opts,
+		rpcClient:           rpcClient,
+		methods:             getHandlerNames(t),
+		handlers:            getHandlers(instance),
+		routeHandler:        routeHandler,
+		stopHandler:         stopHandler,
+		setupHandler:        setupHandler,
+		r:                   r,
+		Log:                 wklog.NewWKLog(fmt.Sprintf("Plugin[%s]", opts.No)),
+		cfgTemplate:         getPluginConfigTemplate(configType),
+		configType:          configType,
+		configUpdateHandler: configUpdateHandler,
+		instance:            instance,
 	}
+	if strings.TrimSpace(opts.Sandbox) != "" {
+		pg.sandbox = opts.Sandbox
+		pg.initLogger()
+	}
+	return pg
 }
 
 func (p *plugin) start() {
@@ -168,6 +193,62 @@ func (p *plugin) route(ctx *HttpContext) {
 	p.r.handle(ctx)
 }
 
+func (p *plugin) configUpdate(cfg map[string]interface{}) {
+	if p.configType == nil {
+		return
+	}
+
+	// 将map配置填充到Config结构体中
+	config := reflect.New(p.configType).Interface()
+	err := fillConfig(cfg, config)
+	if err != nil {
+		p.Error("fill config error", zap.Error(err))
+		return
+	}
+
+	// 设置Config
+	v := reflect.ValueOf(p.instance).Elem()
+	cfgValue := v.FieldByName("Config")
+	if !cfgValue.IsValid() {
+		p.Warn("config field not found")
+		return
+	}
+	cfgValue.Set(reflect.ValueOf(config).Elem())
+
+	// 通知插件
+	if p.configUpdateHandler != nil {
+		p.configUpdateHandler()
+	}
+
+}
+
+// fillConfig 将 cfg map 类型的数据填充到 config 结构体中
+func fillConfig(cfg map[string]interface{}, config interface{}) error {
+	v := reflect.ValueOf(config).Elem()
+	t := v.Type()
+
+	for i := 0; i < t.NumField(); i++ {
+		field := t.Field(i)
+		jsonTag := field.Tag.Get("json")
+		if jsonTag == "" {
+			jsonTag = field.Name
+		}
+
+		if value, ok := cfg[jsonTag]; ok {
+			fieldValue := v.Field(i)
+			if fieldValue.CanSet() {
+				val := reflect.ValueOf(value)
+				if val.Type().ConvertibleTo(fieldValue.Type()) {
+					fieldValue.Set(val.Convert(fieldValue.Type()))
+				} else {
+					return fmt.Errorf("cannot convert %v to %v", val.Type(), fieldValue.Type())
+				}
+			}
+		}
+	}
+	return nil
+}
+
 func (p *plugin) requestStart() error {
 	pluginInfo := p.getPluginInfo()
 	data, err := pluginInfo.Marshal()
@@ -189,6 +270,15 @@ func (p *plugin) requestStart() error {
 	}
 	p.sandbox = resp.SandboxDir
 	p.serverNodeId = resp.NodeId
+	if len(resp.Config) > 0 {
+		var config map[string]interface{}
+		err = json.Unmarshal(resp.Config, &config)
+		if err != nil {
+			p.Warn("unmarshal config error", zap.Error(err))
+		} else {
+			p.configUpdate(config)
+		}
+	}
 	return nil
 }
 
@@ -219,8 +309,79 @@ func (p *plugin) getPluginInfo() *pluginproto.PluginInfo {
 		Version:          p.opts.Version,
 		Priority:         p.opts.Priority,
 		Methods:          p.methods,
+		ConfigTemplate:   p.cfgTemplate,
 	}
 
+}
+
+func getPluginConfigTemplate(configType reflect.Type) *pluginproto.ConfigTemplate {
+	return &pluginproto.ConfigTemplate{
+		Fields: getFields(configType),
+	}
+}
+
+func getPluginConfigTemplateType(t reflect.Type) reflect.Type {
+	switch t.Kind() {
+	case reflect.Ptr:
+		return getPluginConfigTemplateType(t.Elem())
+	case reflect.Struct:
+		for i := 0; i < t.NumField(); i++ {
+			field := t.Field(i)
+			if field.Name == "Config" {
+				return field.Type
+			}
+		}
+	}
+	return nil
+
+}
+
+func getFields(t reflect.Type) []*pluginproto.Field {
+	fields := []*pluginproto.Field{}
+	for i := 0; i < t.NumField(); i++ {
+		field := t.Field(i)
+		// ignore unexported fields
+		if len(field.PkgPath) != 0 {
+			continue
+		}
+
+		name := field.Tag.Get("json")
+		label := field.Tag.Get("label")
+		fieldType := getFieldType(field.Type)
+		if fieldType == "" {
+			continue
+		}
+
+		if label == "" {
+			label = name
+		}
+
+		fields = append(fields, &pluginproto.Field{
+			Name:  name,
+			Label: label,
+			Type:  fieldType,
+		})
+	}
+	return fields
+}
+
+func getFieldType(t reflect.Type) string {
+	if t == reflect.TypeOf(SecretKey("")) {
+		return "secret"
+	}
+	switch t.Kind() {
+	case reflect.String:
+		return "string"
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		return "number"
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		return "number"
+	case reflect.Float32, reflect.Float64:
+		return "number"
+	case reflect.Bool:
+		return "bool"
+	}
+	return ""
 }
 
 // 获取插件名称
@@ -287,6 +448,13 @@ func getSetupHandler(instance interface{}) func() {
 	return nil
 }
 
+func getConfigUpdateHandler(instance interface{}) func() {
+	if h, ok := instance.(configUpdate); ok {
+		return h.ConfigUpdate
+	}
+	return nil
+}
+
 type (
 	send interface {
 		Send(*Context)
@@ -309,5 +477,9 @@ type (
 
 	setup interface {
 		Setup()
+	}
+
+	configUpdate interface {
+		ConfigUpdate()
 	}
 )

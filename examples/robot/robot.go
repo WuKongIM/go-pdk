@@ -25,9 +25,14 @@ func main() {
 	}
 }
 
+type Config struct {
+	ApiKey pdk.SecretKey `json:"api_key" label:"Volcengine API Key"`
+}
+
 type Robot struct {
 	wklog.Log
 	client *arkruntime.Client
+	Config Config // 插件的配置，名字必须为Config, 声明了以后，可以在WuKongIM后台配置
 }
 
 func New() interface{} {
@@ -37,17 +42,18 @@ func New() interface{} {
 }
 
 func (r *Robot) Setup() {
-	fmt.Println("plugin setup...")
 	r.client = arkruntime.NewClientWithApiKey(
-		"de509a56-03d4-4fae-abf1-48fde91151d9",
+		r.Config.ApiKey.String(),
 	)
 
 }
 
+func (r *Robot) ConfigUpdate() {
+	fmt.Println("config update...", r.Config.ApiKey)
+}
+
 // 实现插件的回复消息方法
 func (r *Robot) Reply(c *pdk.Context) {
-
-	fmt.Println("plugin reply...", c.RecvPacket)
 
 	var payload map[string]interface{}
 	err := json.Unmarshal(c.RecvPacket.Payload, &payload)

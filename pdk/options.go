@@ -6,6 +6,7 @@ type Options struct {
 	ReplySync        bool   // Reply方法是否同步调用
 	Version          string
 	Priority         int32
+	Sandbox          string // 沙箱目录
 }
 
 func newOptions() *Options {
@@ -44,5 +45,11 @@ func WithPersistAfterSync(persistAfterSync bool) Option {
 func WithReplySync(replySync bool) Option {
 	return func(o *Options) {
 		o.ReplySync = replySync
+	}
+}
+
+func WithSandbox(sandbox string) Option {
+	return func(o *Options) {
+		o.Sandbox = sandbox
 	}
 }

@@ -28,3 +28,10 @@ func HashCrc32(str string) uint32 {
 
 	return crc32.ChecksumIEEE([]byte(str))
 }
+
+// SecretKey SecretKey类型
+type SecretKey string
+
+func (s SecretKey) String() string {
+	return string(s)
+}
