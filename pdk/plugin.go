@@ -315,6 +315,9 @@ func (p *plugin) getPluginInfo() *pluginproto.PluginInfo {
 }
 
 func getPluginConfigTemplate(configType reflect.Type) *pluginproto.ConfigTemplate {
+	if configType == nil {
+		return &pluginproto.ConfigTemplate{}
+	}
 	return &pluginproto.ConfigTemplate{
 		Fields: getFields(configType),
 	}
