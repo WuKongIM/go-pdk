@@ -1975,6 +1975,136 @@ func (x *StreamWriteResp) GetClientMsgNo() string {
 	return ""
 }
 
+type SendReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Header        *Header                `protobuf:"bytes,1,opt,name=header,proto3" json:"header,omitempty"`            // 头部
+	ClientMsgNo   string                 `protobuf:"bytes,2,opt,name=clientMsgNo,proto3" json:"clientMsgNo,omitempty"`  // 客户端消息编号（相同编号，客户端只会显示一条，可以为空）
+	FromUid       string                 `protobuf:"bytes,3,opt,name=fromUid,proto3" json:"fromUid,omitempty"`          // 发送者
+	ChannelId     string                 `protobuf:"bytes,4,opt,name=channelId,proto3" json:"channelId,omitempty"`      // 频道id
+	ChannelType   uint32                 `protobuf:"varint,5,opt,name=channelType,proto3" json:"channelType,omitempty"` // 频道类型
+	Payload       []byte                 `protobuf:"bytes,6,opt,name=payload,proto3" json:"payload,omitempty"`          // 消息内容
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SendReq) Reset() {
+	*x = SendReq{}
+	mi := &file_pdk_pluginproto_plugin_proto_msgTypes[30]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SendReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SendReq) ProtoMessage() {}
+
+func (x *SendReq) ProtoReflect() protoreflect.Message {
+	mi := &file_pdk_pluginproto_plugin_proto_msgTypes[30]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SendReq.ProtoReflect.Descriptor instead.
+func (*SendReq) Descriptor() ([]byte, []int) {
+	return file_pdk_pluginproto_plugin_proto_rawDescGZIP(), []int{30}
+}
+
+func (x *SendReq) GetHeader() *Header {
+	if x != nil {
+		return x.Header
+	}
+	return nil
+}
+
+func (x *SendReq) GetClientMsgNo() string {
+	if x != nil {
+		return x.ClientMsgNo
+	}
+	return ""
+}
+
+func (x *SendReq) GetFromUid() string {
+	if x != nil {
+		return x.FromUid
+	}
+	return ""
+}
+
+func (x *SendReq) GetChannelId() string {
+	if x != nil {
+		return x.ChannelId
+	}
+	return ""
+}
+
+func (x *SendReq) GetChannelType() uint32 {
+	if x != nil {
+		return x.ChannelType
+	}
+	return 0
+}
+
+func (x *SendReq) GetPayload() []byte {
+	if x != nil {
+		return x.Payload
+	}
+	return nil
+}
+
+// 发送消息响应
+type SendResp struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 消息唯一id（全局唯一）
+	MessageId     int64 `protobuf:"varint,1,opt,name=messageId,proto3" json:"messageId,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SendResp) Reset() {
+	*x = SendResp{}
+	mi := &file_pdk_pluginproto_plugin_proto_msgTypes[31]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SendResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SendResp) ProtoMessage() {}
+
+func (x *SendResp) ProtoReflect() protoreflect.Message {
+	mi := &file_pdk_pluginproto_plugin_proto_msgTypes[31]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SendResp.ProtoReflect.Descriptor instead.
+func (*SendResp) Descriptor() ([]byte, []int) {
+	return file_pdk_pluginproto_plugin_proto_rawDescGZIP(), []int{31}
+}
+
+func (x *SendResp) GetMessageId() int64 {
+	if x != nil {
+		return x.MessageId
+	}
+	return 0
+}
+
 var File_pdk_pluginproto_plugin_proto protoreflect.FileDescriptor
 
 var file_pdk_pluginproto_plugin_proto_rawDesc = []byte{
@@ -2234,8 +2364,24 @@ var file_pdk_pluginproto_plugin_proto_rawDesc = []byte{
 	0x65, 0x49, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x09, 0x6d, 0x65, 0x73, 0x73, 0x61,
 	0x67, 0x65, 0x49, 0x64, 0x12, 0x20, 0x0a, 0x0b, 0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x4d, 0x73,
 	0x67, 0x4e, 0x6f, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0b, 0x63, 0x6c, 0x69, 0x65, 0x6e,
-	0x74, 0x4d, 0x73, 0x67, 0x4e, 0x6f, 0x42, 0x10, 0x5a, 0x0e, 0x2e, 0x2f, 0x3b, 0x70, 0x6c, 0x75,
-	0x67, 0x69, 0x6e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x74, 0x4d, 0x73, 0x67, 0x4e, 0x6f, 0x22, 0xcc, 0x01, 0x0a, 0x07, 0x53, 0x65, 0x6e, 0x64, 0x52,
+	0x65, 0x71, 0x12, 0x2b, 0x0a, 0x06, 0x68, 0x65, 0x61, 0x64, 0x65, 0x72, 0x18, 0x01, 0x20, 0x01,
+	0x28, 0x0b, 0x32, 0x13, 0x2e, 0x70, 0x6c, 0x75, 0x67, 0x69, 0x6e, 0x70, 0x72, 0x6f, 0x74, 0x6f,
+	0x2e, 0x48, 0x65, 0x61, 0x64, 0x65, 0x72, 0x52, 0x06, 0x68, 0x65, 0x61, 0x64, 0x65, 0x72, 0x12,
+	0x20, 0x0a, 0x0b, 0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x4d, 0x73, 0x67, 0x4e, 0x6f, 0x18, 0x02,
+	0x20, 0x01, 0x28, 0x09, 0x52, 0x0b, 0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x4d, 0x73, 0x67, 0x4e,
+	0x6f, 0x12, 0x18, 0x0a, 0x07, 0x66, 0x72, 0x6f, 0x6d, 0x55, 0x69, 0x64, 0x18, 0x03, 0x20, 0x01,
+	0x28, 0x09, 0x52, 0x07, 0x66, 0x72, 0x6f, 0x6d, 0x55, 0x69, 0x64, 0x12, 0x1c, 0x0a, 0x09, 0x63,
+	0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x49, 0x64, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09,
+	0x63, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x49, 0x64, 0x12, 0x20, 0x0a, 0x0b, 0x63, 0x68, 0x61,
+	0x6e, 0x6e, 0x65, 0x6c, 0x54, 0x79, 0x70, 0x65, 0x18, 0x05, 0x20, 0x01, 0x28, 0x0d, 0x52, 0x0b,
+	0x63, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x54, 0x79, 0x70, 0x65, 0x12, 0x18, 0x0a, 0x07, 0x70,
+	0x61, 0x79, 0x6c, 0x6f, 0x61, 0x64, 0x18, 0x06, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x07, 0x70, 0x61,
+	0x79, 0x6c, 0x6f, 0x61, 0x64, 0x22, 0x28, 0x0a, 0x08, 0x53, 0x65, 0x6e, 0x64, 0x52, 0x65, 0x73,
+	0x70, 0x12, 0x1c, 0x0a, 0x09, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x49, 0x64, 0x18, 0x01,
+	0x20, 0x01, 0x28, 0x03, 0x52, 0x09, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x49, 0x64, 0x42,
+	0x10, 0x5a, 0x0e, 0x2e, 0x2f, 0x3b, 0x70, 0x6c, 0x75, 0x67, 0x69, 0x6e, 0x70, 0x72, 0x6f, 0x74,
+	0x6f, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -2250,7 +2396,7 @@ func file_pdk_pluginproto_plugin_proto_rawDescGZIP() []byte {
 	return file_pdk_pluginproto_plugin_proto_rawDescData
 }
 
-var file_pdk_pluginproto_plugin_proto_msgTypes = make([]protoimpl.MessageInfo, 33)
+var file_pdk_pluginproto_plugin_proto_msgTypes = make([]protoimpl.MessageInfo, 35)
 var file_pdk_pluginproto_plugin_proto_goTypes = []any{
 	(*PluginInfo)(nil),                        // 0: pluginproto.PluginInfo
 	(*Field)(nil),                             // 1: pluginproto.Field
@@ -2282,17 +2428,19 @@ var file_pdk_pluginproto_plugin_proto_goTypes = []any{
 	(*StreamCloseReq)(nil),                    // 27: pluginproto.StreamCloseReq
 	(*StreamWriteReq)(nil),                    // 28: pluginproto.StreamWriteReq
 	(*StreamWriteResp)(nil),                   // 29: pluginproto.StreamWriteResp
-	nil,                                       // 30: pluginproto.HttpRequest.HeadersEntry
-	nil,                                       // 31: pluginproto.HttpRequest.QueryEntry
-	nil,                                       // 32: pluginproto.HttpResponse.HeadersEntry
+	(*SendReq)(nil),                           // 30: pluginproto.SendReq
+	(*SendResp)(nil),                          // 31: pluginproto.SendResp
+	nil,                                       // 32: pluginproto.HttpRequest.HeadersEntry
+	nil,                                       // 33: pluginproto.HttpRequest.QueryEntry
+	nil,                                       // 34: pluginproto.HttpResponse.HeadersEntry
 }
 var file_pdk_pluginproto_plugin_proto_depIdxs = []int32{
 	2,  // 0: pluginproto.PluginInfo.configTemplate:type_name -> pluginproto.ConfigTemplate
 	1,  // 1: pluginproto.ConfigTemplate.fields:type_name -> pluginproto.Field
 	6,  // 2: pluginproto.MessageBatch.messages:type_name -> pluginproto.Message
-	30, // 3: pluginproto.HttpRequest.headers:type_name -> pluginproto.HttpRequest.HeadersEntry
-	31, // 4: pluginproto.HttpRequest.query:type_name -> pluginproto.HttpRequest.QueryEntry
-	32, // 5: pluginproto.HttpResponse.headers:type_name -> pluginproto.HttpResponse.HeadersEntry
+	32, // 3: pluginproto.HttpRequest.headers:type_name -> pluginproto.HttpRequest.HeadersEntry
+	33, // 4: pluginproto.HttpRequest.query:type_name -> pluginproto.HttpRequest.QueryEntry
+	34, // 5: pluginproto.HttpResponse.headers:type_name -> pluginproto.HttpResponse.HeadersEntry
 	10, // 6: pluginproto.ChannelMessageBatchReq.channelMessageReqs:type_name -> pluginproto.ChannelMessageReq
 	6,  // 7: pluginproto.ChannelMessageResp.messages:type_name -> pluginproto.Message
 	12, // 8: pluginproto.ChannelMessageBatchResp.channelMessageResps:type_name -> pluginproto.ChannelMessageResp
@@ -2305,11 +2453,12 @@ var file_pdk_pluginproto_plugin_proto_depIdxs = []int32{
 	17, // 15: pluginproto.ConversationChannelResp.channels:type_name -> pluginproto.Channel
 	24, // 16: pluginproto.Stream.header:type_name -> pluginproto.Header
 	24, // 17: pluginproto.StreamWriteReq.header:type_name -> pluginproto.Header
-	18, // [18:18] is the sub-list for method output_type
-	18, // [18:18] is the sub-list for method input_type
-	18, // [18:18] is the sub-list for extension type_name
-	18, // [18:18] is the sub-list for extension extendee
-	0,  // [0:18] is the sub-list for field type_name
+	24, // 18: pluginproto.SendReq.header:type_name -> pluginproto.Header
+	19, // [19:19] is the sub-list for method output_type
+	19, // [19:19] is the sub-list for method input_type
+	19, // [19:19] is the sub-list for extension type_name
+	19, // [19:19] is the sub-list for extension extendee
+	0,  // [0:19] is the sub-list for field type_name
 }
 
 func init() { file_pdk_pluginproto_plugin_proto_init() }
@@ -2323,7 +2472,7 @@ func file_pdk_pluginproto_plugin_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_pdk_pluginproto_plugin_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   33,
+			NumMessages:   35,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

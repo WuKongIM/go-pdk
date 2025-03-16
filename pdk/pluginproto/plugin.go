@@ -191,3 +191,18 @@ func (r *RecvPacket) Marshal() ([]byte, error) {
 func (r *RecvPacket) Unmarshal(data []byte) error {
 	return proto.Unmarshal(data, r)
 }
+func (s *SendReq) Marshal() ([]byte, error) {
+	return proto.Marshal(s)
+}
+
+func (s *SendReq) Unmarshal(data []byte) error {
+	return proto.Unmarshal(data, s)
+}
+
+func (s *SendResp) Marshal() ([]byte, error) {
+	return proto.Marshal(s)
+}
+
+func (s *SendResp) Unmarshal(data []byte) error {
+	return proto.Unmarshal(data, s)
+}

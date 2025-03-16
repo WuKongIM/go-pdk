@@ -64,3 +64,22 @@ func StreamWithPayload(payload Payload) StreamOption {
 		s.Payload = data
 	}
 }
+
+type ReplyOptions struct {
+	Header      *pluginproto.Header
+	ClientMsgNo string
+}
+
+type ReplyOption func(*ReplyOptions)
+
+func ReplyWithHeader(header *pluginproto.Header) ReplyOption {
+	return func(o *ReplyOptions) {
+		o.Header = header
+	}
+}
+
+func ReplyWithClientMsgNo(clientMsgNo string) ReplyOption {
+	return func(o *ReplyOptions) {
+		o.ClientMsgNo = clientMsgNo
+	}
+}

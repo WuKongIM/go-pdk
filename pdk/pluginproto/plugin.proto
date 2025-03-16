@@ -274,3 +274,18 @@ message StreamWriteResp {
     // 客户端消息编号
     string clientMsgNo = 2;
 }
+
+message SendReq {
+    Header header = 1; // 头部
+    string clientMsgNo = 2;// 客户端消息编号（相同编号，客户端只会显示一条，可以为空）
+    string fromUid = 3; // 发送者
+    string channelId = 4; // 频道id
+    uint32 channelType = 5; // 频道类型
+    bytes payload = 6; // 消息内容
+}
+
+// 发送消息响应
+message SendResp {
+    // 消息唯一id（全局唯一）
+    int64 messageId = 1;
+}

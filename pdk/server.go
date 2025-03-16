@@ -225,6 +225,26 @@ func (s *Server) RequestStreamWrite(req *pluginproto.StreamWriteReq) error {
 	return nil
 }
 
+// RequestSend 请求发送消息
+func (s *Server) RequestSend(req *pluginproto.SendReq) (*pluginproto.SendResp, error) {
+	data, err := req.Marshal()
+	if err != nil {
+		return nil, err
+	}
+	resultData, err := s.Request("/message/send", data)
+	if err != nil {
+		return nil, err
+	}
+
+	resp := &pluginproto.SendResp{}
+	err = resp.Unmarshal(resultData)
+	if err != nil {
+		return nil, err
+	}
+
+	return resp, nil
+}
+
 // NodeId 获取服务端节点ID（插件安装的节点）
 func (s *Server) NodeId() uint64 {
 	return s.plugin.serverNodeId

@@ -7,6 +7,7 @@ import (
 
 	wkproto "github.com/WuKongIM/WuKongIMGoProto"
 	"github.com/WuKongIM/go-pdk/pdk/pluginproto"
+	"go.uber.org/zap"
 )
 
 type Context struct {
@@ -70,9 +71,33 @@ func (c *Context) OpenStream(opt ...StreamOption) (*Stream, error) {
 }
 
 // 回复消息
-func (c *Context) Reply(payload []byte) error {
+func (c *Context) Reply(payload []byte, opt ...ReplyOption) {
+	if c.RecvPacket == nil {
+		return
+	}
 
-	return nil
+	opts := &ReplyOptions{}
+	for _, o := range opt {
+		o(opts)
+	}
+
+	channelId := c.RecvPacket.ChannelId
+	channelType := c.RecvPacket.ChannelType
+	if c.RecvPacket.ChannelType == uint32(wkproto.ChannelTypePerson) {
+		channelId = c.RecvPacket.FromUid
+	}
+
+	_, err := c.s.RequestSend(&pluginproto.SendReq{
+		Header:      opts.Header,
+		ClientMsgNo: opts.ClientMsgNo,
+		FromUid:     c.RecvPacket.ToUid,
+		ChannelId:   channelId,
+		ChannelType: channelType,
+		Payload:     payload,
+	})
+	if err != nil {
+		c.s.Error("Reply error", zap.Error(err))
+	}
 }
 
 type HttpContext struct {
