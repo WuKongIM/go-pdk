@@ -14,7 +14,7 @@ func (s *Server) routes() {
 	s.rpcClient.Route("/plugin/send", s.send)                        // 发送消息请求
 	s.rpcClient.Route("/plugin/persist_after", s.persistAfter)       // 存储消息后请求
 	s.rpcClient.Route("/plugin/route", s.route)                      // 路由请求
-	s.rpcClient.Route("/plugin/reply", s.reply)                      // 回复请求
+	s.rpcClient.Route("/plugin/receive", s.receive)                  // 收到消息
 	s.rpcClient.Route("/plugin/config_update", s.handleConfigUpdate) // WuKongIM请求更新插件配置
 	s.rpcClient.Route("/stop", s.handleStop)                         // WuKongIM请求停止插件
 }
@@ -31,14 +31,14 @@ func (s *Server) onMessage() {
 				return
 			}
 			s.handlePersistAfter(messages)
-		case uint32(PluginMethodTypeReply):
+		case uint32(PluginMethodTypeReceive):
 			recvPacket := &pluginproto.RecvPacket{}
 			err := recvPacket.Unmarshal(msg.Content)
 			if err != nil {
 				s.Error("unmarshal recv packet error", zap.Error(err))
 				return
 			}
-			s.handleReply(recvPacket)
+			s.handleReceive(recvPacket)
 		}
 	})
 }
@@ -77,7 +77,7 @@ func (s *Server) persistAfter(c *client.Context) {
 	c.WriteOk()
 }
 
-func (s *Server) reply(c *client.Context) {
+func (s *Server) receive(c *client.Context) {
 	recvPacket := &pluginproto.RecvPacket{}
 	err := recvPacket.Unmarshal(c.Body())
 	if err != nil {
@@ -85,7 +85,7 @@ func (s *Server) reply(c *client.Context) {
 		c.WriteErr(err)
 		return
 	}
-	s.handleReply(recvPacket)
+	s.handleReceive(recvPacket)
 }
 
 func (s *Server) handlePersistAfter(messageBatch *pluginproto.MessageBatch) {
@@ -93,9 +93,9 @@ func (s *Server) handlePersistAfter(messageBatch *pluginproto.MessageBatch) {
 	s.plugin.persistAfter(ctx)
 }
 
-func (s *Server) handleReply(recvPacket *pluginproto.RecvPacket) {
+func (s *Server) handleReceive(recvPacket *pluginproto.RecvPacket) {
 	ctx := newRecvContext(s, recvPacket)
-	s.plugin.reply(ctx)
+	s.plugin.receive(ctx)
 }
 
 func (s *Server) route(c *client.Context) {

@@ -54,8 +54,8 @@ func (s *Hello) PersistAfter(c *pdk.Context) {
 	fmt.Println("PersistAfter:", c.Messages)
 }
 
-// 回复消息（适合AI类插件）（默认异步调用）
-func (s *Hello) Reply(c *pdk.Context) {
+// 收到消息（适合AI类插件）（默认异步调用）
+func (s *Hello) Receive(c *pdk.Context) {
 
 }
 

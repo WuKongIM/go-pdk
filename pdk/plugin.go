@@ -23,7 +23,7 @@ type PluginMethod string
 const (
 	PluginSend         PluginMethod = "Send"
 	PluginPersistAfter PluginMethod = "PersistAfter"
-	PluginReply        PluginMethod = "Reply"
+	PluginReceive      PluginMethod = "Receive"
 	PluginRoute        PluginMethod = "Route"
 	PluginConfigUpdate PluginMethod = "ConfigUpdate"
 )
@@ -37,7 +37,7 @@ type PluginMethodType uint32
 const (
 	PluginMethodTypeSend         PluginMethodType = 1
 	PluginMethodTypePersistAfter PluginMethodType = 2
-	PluginMethodTypeReply        PluginMethodType = 3
+	PluginMethodTypeReceive      PluginMethodType = 3
 	PluginMethodTypeRoute        PluginMethodType = 4
 	PluginMethodTypeConfigUpdate PluginMethodType = 5
 )
@@ -48,8 +48,8 @@ func (p PluginMethod) Type() PluginMethodType {
 		return PluginMethodTypeSend
 	case PluginPersistAfter:
 		return PluginMethodTypePersistAfter
-	case PluginReply:
-		return PluginMethodTypeReply
+	case PluginReceive:
+		return PluginMethodTypeReceive
 	case PluginRoute:
 		return PluginMethodTypeRoute
 	case PluginConfigUpdate:
@@ -171,8 +171,8 @@ func (p *plugin) send(ctx *Context) {
 	}
 }
 
-func (p *plugin) reply(ctx *Context) {
-	handler := p.handlers[PluginReply.String()]
+func (p *plugin) receive(ctx *Context) {
+	handler := p.handlers[PluginReceive.String()]
 	if handler != nil {
 		handler(ctx)
 	}
@@ -400,7 +400,7 @@ func getName() (string, error) {
 var methodNames = [...]string{
 	PluginSend.String(),
 	PluginPersistAfter.String(),
-	PluginReply.String(),
+	PluginReceive.String(),
 	PluginRoute.String(),
 }
 
@@ -424,8 +424,8 @@ func getHandlers(instance interface{}) map[string]func(*Context) {
 	if h, ok := instance.(persistAfter); ok {
 		handlers[PluginPersistAfter.String()] = h.PersistAfter
 	}
-	if h, ok := instance.(reply); ok {
-		handlers[PluginReply.String()] = h.Reply
+	if h, ok := instance.(receive); ok {
+		handlers[PluginReceive.String()] = h.Receive
 	}
 	return handlers
 }
@@ -466,8 +466,8 @@ type (
 		PersistAfter(*Context)
 	}
 
-	reply interface {
-		Reply(*Context)
+	receive interface {
+		Receive(*Context)
 	}
 
 	route interface {

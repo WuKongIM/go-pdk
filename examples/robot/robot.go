@@ -53,7 +53,7 @@ func (r *Robot) ConfigUpdate() {
 }
 
 // 实现插件的回复消息方法
-func (r *Robot) Reply(c *pdk.Context) {
+func (r *Robot) Receive(c *pdk.Context) {
 
 	var payload map[string]interface{}
 	err := json.Unmarshal(c.RecvPacket.Payload, &payload)
