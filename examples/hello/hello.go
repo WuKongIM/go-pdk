@@ -47,6 +47,7 @@ func (s *Hello) Send(c *pdk.Context) {
 
 	sendPacket := c.SendPacket
 	sendPacket.Payload = []byte("{\"content\":\"hello\",\"type\":1}")
+	// sendPacket.Reason = uint32(wkproto.ReasonSuccess)
 }
 
 // 消息持久化后（适合消息搜索类插件）（默认异步调用）
